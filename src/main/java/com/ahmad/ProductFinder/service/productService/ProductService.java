@@ -22,6 +22,7 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductResponseDto createProduct(CreateProductRequestDto dto) {
+        
         Product product = new Product();
         product.setName(dto.name());
         product.setDescription(dto.description());

@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<ApiErrorResponse> handleAlreadyExistsException(ResourceNotFoundException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleAlreadyExistsException(AlreadyExistsException exception, HttpServletRequest request) {
         var response = ApiErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .path(request.getRequestURI())
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiErrorResponse> handleAlreadyExistsException(IllegalArgumentException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception, HttpServletRequest request) {
         var response = ApiErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .path(request.getRequestURI())
