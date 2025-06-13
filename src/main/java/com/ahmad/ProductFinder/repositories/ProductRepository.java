@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product,Long> {
     boolean existsById(Long productId);
 
-    Optional<List<Product>> getProductByCategory(String category);
+    List<Product> getProductByCategory(String category);
 
     List<Product> searchDistinctProductByNameContainingIgnoreCase(String name);
 

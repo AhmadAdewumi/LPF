@@ -9,7 +9,7 @@ import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
 import java.util.List;
 
 public interface IStoreService {
-    void createStore(CreateStoreRequestDto dto);
+    StoreResponseDto createStore(CreateStoreRequestDto dto);
 
     StoreResponseDto updateStore(Long storeId, UpdateStoreRequestDto dto);
 

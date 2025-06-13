@@ -18,10 +18,20 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     //    Long findStoreById(Long storeId);
     boolean existsById(Long storeId);
 
+
+    @Query(value = """
+            SELECT EXISTS (
+                SELECT 1 FROM store
+                WHERE owner_id = :ownerId
+                  AND ST_DWithin(location::geography , ST_SetSRID((ST_MakePoint(:lon, :lat))::geography, 4326), 5)
+            )
+            """, nativeQuery = true)
+    boolean storeExistsAtLocation(@Param("ownerId") Long ownerId,
+                                  @Param("lat") double lat,
+                                  @Param("lon") double lon);
+
+
     Optional<Store> findByOwnerIdAndLocation(Long ownerId, Point location);
-
-    List<Store> findAllByIsActiveTrue();
-
 
     @Query(value = """
                 SELECT
@@ -61,15 +71,22 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     on map, THERE SHOULD BE A BUTTON LIKE SHOW LOCATION ON MAP
 
      */
+//    @Query(value = """
+//            SELECT DISTINCT s
+//                FROM Store s
+//                JOIN FETCH s.inventory i
+//                JOIN FETCH i.product p
+//                WHERE s.isActive =true
+//                AND LOWER(s.name) like LOWER(CONCAT('%', :storeName,'%') )
+//                AND i.isActive = true
+//                AND i.stockQuantity>0
+//            """
+//    )
     @Query(value = """
-            SELECT DISTINCT s
-                FROM Store s
-                JOIN FETCH s.inventory i
-                JOIN FETCH i.product p
-                WHERE s.isActive =true
-                AND LOWER(s.name) like LOWER(CONCAT('%', :storeName,'%') ) 
-                AND i.isActive = true
-                AND i.stockQuantity>0
+            SELECT DISTINCT s 
+            FROM Store s
+            WHERE s.isActive=true 
+            AND LOWER(s.name) LIKE LOWER(CONCAT('%', :storeName,'%') )
             """
     )
     List<Store> searchStoreByName(@Param("storeName") String storeName);
@@ -90,9 +107,9 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
               s.postal_code AS postal_code,
               s.location AS location,
               ST_Distance(
-                s.location::geography,
+                CAST(s.location AS geography),
                 ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography
-              )             AS distance_in_meters
+              ) AS distance_in_metres
             FROM store s
             JOIN inventory i ON i.store_id = s.id
             JOIN product p   ON p.id = i.product_id
@@ -101,18 +118,18 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
               AND i.stock_quantity >  0
               AND LOWER(p.name) LIKE  LOWER(CONCAT('%', :productName, '%'))
               AND ST_DWithin(
-                    s.location::geography,
+                    CAST(s.location AS geography),
                     ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography,
-                    :radiusInMeters
+                    :radiusInMetres
               )
-            ORDER BY distance_in_meters ASC
+            ORDER BY distance_in_metres ASC
             """,
             nativeQuery = true)
     List<StoreProjection> searchNearbyStoresWithProductName(
             @Param("lat") double latitude,
             @Param("lon") double longitude,
             @Param("productName") String productName,
-            @Param("radiusInMeters") double radiusInMeters
+            @Param("radiusInMetres") double radiusInMetres
     );
 
 
@@ -120,17 +137,17 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             SELECT
               s.id   AS id,
               s.name    AS name,
-              s.address_street  AS street,
-              s.address_city  AS city,
-              s.address_state  AS state,
-              s.address_country AS country,
-              s.address_postal_code  AS postal_code,
+              s.street  AS street,
+              s.city  AS city,
+              s.state  AS state,
+              s.country AS country,
+              s.postal_code  AS postal_code,
               s.latitude AS latitude,
               s.longitude    AS longitude,
               ST_Distance(
                 CAST(s.location AS geography),
                 ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography
-              )                       AS distance_in_metres
+              )  AS distance_in_metres
             FROM store s
             JOIN inventory i ON i.store_id    = s.id
             WHERE s.is_active     = true
@@ -149,7 +166,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             @Param("lat") double latitude,
             @Param("lon") double longitude,
             @Param("productId") Long productId,
-            @Param("radiusInMeters") double radiusInMeters
+            @Param("radiusInMeters") double radiusInMetres
     );
 
 }

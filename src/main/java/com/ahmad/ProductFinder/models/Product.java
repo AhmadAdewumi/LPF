@@ -21,7 +21,8 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_seq")
+    @SequenceGenerator(name = "product_seq", sequenceName = "product_seq", allocationSize = 100)
     private Long id;
 
     @NotBlank(message = "Product name must not be blank")
@@ -45,14 +46,27 @@ public class Product {
     private boolean isAvailable = true;
 
 
-    @ManyToMany(mappedBy = "products")
-    private List<Store> stores;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store store;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Inventory> storeListings = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
+    public void addImage(Image image){
+        if (images.size()>=5){
+            throw new IllegalArgumentException("Cannot add more than 5 images per product");
+        }
+        images.add(image);
+        image.setProduct(this);
+    }
+
+    public void removeImage(Image image){
+        images.remove(image);
+        image.setProduct(null);
+    }
 
 
 }

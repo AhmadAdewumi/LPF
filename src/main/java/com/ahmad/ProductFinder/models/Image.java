@@ -11,10 +11,9 @@ import lombok.*;
 @Builder
 public class Image {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "image_seq")
+    @SequenceGenerator(name = "image_seq", sequenceName = "image_seq", allocationSize = 100)
     private Long id;
-
-
 
     @Column(nullable = false)
     private String url;

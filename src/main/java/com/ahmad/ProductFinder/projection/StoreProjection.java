@@ -13,7 +13,7 @@ public interface StoreProjection {
 
     Double getLatitude();
 
-Double getLongitude();
+    Double getLongitude();
 
     Double getDistance();
 
@@ -29,5 +29,5 @@ Double getLongitude();
 
     Point getLocation();
 
-    double getDistance_in_metres();
+    Double getDistance_in_metres();
 }

@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IInventoryService {
-    void createInventory(CreateInventoryRequestDto inventoryRequest);
+    Inventory createInventory(CreateInventoryRequestDto inventoryRequest);
     void deleteInventoryById(Long inventoryId);
     Inventory updateInventory(Long inventoryId , UpdateInventoryRequestDto inventoryRequest);
-    List<InventoryResponseDto> getAllInventories(InventoryResponseDto responseDto);                //for admin
+    List<InventoryResponseDto> getAllInventories();                //for admin
     List<InventoryResponseDto> getInventoryByStore(Long storeId);
     List<InventoryResponseDto> getInventoryByProduct(Long productId);
     Integer getProductsStockLevel(Long storeId , Long productId);

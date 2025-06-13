@@ -1,6 +1,7 @@
 package com.ahmad.ProductFinder.models;
 
 import com.ahmad.ProductFinder.embedded.Address;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,8 +22,10 @@ import java.util.List;
 @Builder
 public class Store {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "store_seq")
+    @SequenceGenerator(name = "store_seq", sequenceName = "store_seq", allocationSize = 100)
+    private Long id;
+
 
     @NotBlank(message = "store name cannot be empty")
     private String name;
@@ -41,12 +44,13 @@ public class Store {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    private boolean isVerified = false;
+    private boolean isVerified = true;
 
     private boolean isActive;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
+    @JsonIgnore
     private User owner;
 
     @Column(nullable = false)
@@ -58,12 +62,15 @@ public class Store {
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location; // 4326{spatial reference system identifier (SRID)
 
-    @ManyToMany
-    @JoinTable(
-            name = "stores_products",
-            joinColumns = @JoinColumn(name ="store_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
+
+
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    @JoinTable(
+//            name = "stores_products",
+//            joinColumns = @JoinColumn(name ="store_id",referencedColumnName = "id"),
+//            inverseJoinColumns = @JoinColumn(name = "product_id",referencedColumnName = "id")
+//    )
+    @OneToMany(mappedBy = "store",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Product> products;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
