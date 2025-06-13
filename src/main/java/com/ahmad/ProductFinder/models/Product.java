@@ -49,9 +49,15 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     private Store store;
 
+    /***
+     * Inventory get automatically deleted when product is deleted coz orphan removal is set to true
+     */
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Inventory> storeListings = new ArrayList<>();
 
+    /***
+     * images for product get automatically deleted when product is deleted coz orphan removal is set to true
+     */
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 

@@ -23,6 +23,7 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
     @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 100)
     private Long id;
@@ -46,11 +47,11 @@ public class User {
 
     @Column(
             nullable = false ,
-            unique = true
+            unique = true // phone number is unique per user
     )
     private String phoneNumber;
-    @NotNull(message = "roles cannot be empty")
 
+    @NotNull(message = "roles cannot be empty")
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Collection<Role> role = Set.of(Role.USER);

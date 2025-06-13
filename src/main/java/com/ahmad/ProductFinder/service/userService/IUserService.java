@@ -12,6 +12,9 @@ public interface IUserService {
     UserResponseDto updateUser(UpdateUserRequestDto request,Long userId);
     void deleteUser(Long userId);
     void deleteUserForReal(Long userId);
+
+    UserResponseDto restoreUser(Long userId);
+
     List<UserResponseDto> getAllUsers();
     UserResponseDto findUserByUsername(String username);
     UserResponseDto findUserById(Long userId);

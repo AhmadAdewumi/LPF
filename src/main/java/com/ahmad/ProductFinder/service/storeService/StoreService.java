@@ -155,13 +155,25 @@ public class StoreService implements IStoreService {
     }
 
     @Override
-    public void deleteStore(long storeId) {
-        log.info("In delete store service method");
-        log.info("Deleting (deactivating i.e set to false) store with ID: {}", storeId);
+    public void deleteStore(Long storeId) {
+        log.info("In delete store for real service method");
+        log.info("Attempting to permanently delete store with ID: {}", storeId);
+        storeRepository.findById(storeId).orElseThrow(() -> {
+            log.warn("Permanent delete failed - store with ID {} not found", storeId);
+            return new ResourceNotFoundException(format("Store with ID:%d , Not Found", storeId));
+        });
+        storeRepository.deleteById(storeId);
+        log.info("Store with ID {} permanently deleted", storeId);
+    }
+
+    @Override
+    public void disableStore(long storeId) {
+        log.info("In disable store service method");
+        log.info("Disabling (deactivating i.e set to false) store with ID: {}", storeId);
 
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> {
-                    log.error("Store with ID {} not found for deletion", storeId);
+                    log.error("Store with ID {} not found for disabling", storeId);
                     return new ResourceNotFoundException("Store with this ID NOT FOUND");
                 });
 
@@ -173,11 +185,26 @@ public class StoreService implements IStoreService {
     }
 
     @Override
+    public StoreResponseDto restoreStore(Long storeId) {
+        log.info("Attempting to restore user with ID: {}", storeId);
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> {
+            log.warn("Restore store failed - user with ID {} not found", storeId);
+            return new ResourceNotFoundException(format("User with ID:%d , Not Found", storeId));
+        });
+
+        store.setActive(true);
+        storeRepository.save(store);
+        log.info("User with ID: {} restored successfully!",storeId);
+        return StoreResponseDto.from(store);
+    }
+
+
+    @Override
     public StoreResponseDto getStoreById(Long storeId) {
         log.info("In find by id store service method");
         log.info("Fetching store with ID: {}", storeId);
 
-        Store store = storeRepository.findById(storeId)
+        Store store = storeRepository.findByIdAndIsActiveTrue(storeId)
                 .orElseThrow(() -> {
                     log.error("Store with ID {} not found", storeId);
                     return new ResourceNotFoundException(format("Store with ID: %d, not found: ", storeId));
@@ -191,7 +218,7 @@ public class StoreService implements IStoreService {
         log.info("In get all stores service method");
         log.info("Fetching all active stores");
 
-        List<Store> activeStores = storeRepository.findAll();
+        List<Store> activeStores = storeRepository.findByIsActiveTrue();
 
         if (activeStores.isEmpty()) {
             log.warn("No stores found in repository");

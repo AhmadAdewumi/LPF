@@ -5,6 +5,7 @@ import com.ahmad.ProductFinder.dtos.request.UpdateUserRequestDto;
 import com.ahmad.ProductFinder.dtos.response.ApiResponseBody;
 import com.ahmad.ProductFinder.dtos.response.UserResponseDto;
 import com.ahmad.ProductFinder.service.userService.IUserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,12 +13,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/user")
 @Tag(name = "User Management", description = "APIs for user registration, profile management, and retrieval.")
@@ -126,12 +129,23 @@ public class UserController {
                     )
             }
     )
-    @DeleteMapping("/delete/{userId}")
+    @PatchMapping("/disable/{userId}")
     public ResponseEntity<ApiResponseBody> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
-        return ResponseEntity.ok(new ApiResponseBody("User deleted Successfully", null));
+        return ResponseEntity.ok(new ApiResponseBody("User deactivated Successfully", null));
     }
 
+    @Hidden
+    @PatchMapping(value = "/restore/{userId}")
+    public ResponseEntity<ApiResponseBody> restoreUser(@PathVariable Long userId) {
+        log.info("Restore User endpoint called");
+        UserResponseDto result = userService.restoreUser(userId);
+        log.info("User restored successfully");
+        return ResponseEntity.ok(new ApiResponseBody("User restored Successfully", result));
+    }
+
+
+//    @Hidden
     @Operation(
             summary = "Permanently delete a user by ID",
             description = "Completely and irreversibly removes a user account and all associated data from the system. Use with caution.",

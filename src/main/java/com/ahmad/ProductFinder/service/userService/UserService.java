@@ -21,7 +21,7 @@ import static java.lang.String.format;
 
 @Slf4j
 @Service
-public class UserService implements IUserService{
+public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -52,7 +52,7 @@ public class UserService implements IUserService{
                     return UserResponseDto.from(user);
                 }).orElseThrow(() -> {
                     log.warn("User creation failed - email or username already exists");
-                    return new AlreadyExistsException(format("User with email,%s ,or username,%s , already exist!",request.getEmail(),request.getUsername()));
+                    return new AlreadyExistsException(format("User with email,%s ,or username,%s , already exist!", request.getEmail(), request.getUsername()));
                 });
     }
 
@@ -61,7 +61,7 @@ public class UserService implements IUserService{
         log.info("In update user service method");
         log.info("Attempting to update user with ID: {}", userId);
         return userRepository.findById(userId)
-                .map(existingUser->{
+                .map(existingUser -> {
                     existingUser.setFirstName(request.getFirstName());
                     existingUser.setLastname(request.getLastName());
                     existingUser.setPhoneNumber(request.getPhoneNumber());
@@ -72,9 +72,9 @@ public class UserService implements IUserService{
                     log.info("User with ID {} updated successfully", userId);
                     return UserResponseDto.from(existingUser);
                 })
-                .orElseThrow(()-> {
+                .orElseThrow(() -> {
                     log.warn("Update failed - user with ID {} not found", userId);
-                    return new ResourceNotFoundException(format("User with ID:%d , Not Found",userId));
+                    return new ResourceNotFoundException(format("User with ID:%d , Not Found", userId));
                 });
     }
 
@@ -86,9 +86,9 @@ public class UserService implements IUserService{
             user.setActive(false);
             log.info("User with ID {} marked as inactive", userId);
             return userRepository.save(user);
-        }).orElseThrow(()-> {
+        }).orElseThrow(() -> {
             log.warn("Soft delete failed - user with ID {} not found", userId);
-            return new ResourceNotFoundException(format("User with ID:%d , Not Found",userId));
+            return new ResourceNotFoundException(format("User with ID:%d , Not Found", userId));
         });
     }
 
@@ -96,12 +96,26 @@ public class UserService implements IUserService{
     public void deleteUserForReal(Long userId) {
         log.info("In delete user for real service method");
         log.info("Attempting to permanently delete user with ID: {}", userId);
-        userRepository.findById(userId).orElseThrow(()-> {
+        userRepository.findById(userId).orElseThrow(() -> {
             log.warn("Permanent delete failed - user with ID {} not found", userId);
-            return new ResourceNotFoundException(format("User with ID:%d , Not Found",userId));
+            return new ResourceNotFoundException(format("User with ID:%d , Not Found", userId));
         });
         userRepository.deleteById(userId);
         log.info("User with ID {} permanently deleted", userId);
+    }
+
+    @Override
+    public UserResponseDto restoreUser(Long userId) {
+        log.info("Attempting to restore user with ID: {}", userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("Restore user failed - user with ID {} not found", userId);
+            return new ResourceNotFoundException(format("User with ID:%d , Not Found", userId));
+        });
+
+        user.setActive(true);
+        userRepository.save(user);
+        log.info("User with ID: {} restored successfully!",userId);
+        return UserResponseDto.from(user);
     }
 
     @Override
@@ -128,9 +142,9 @@ public class UserService implements IUserService{
     public UserResponseDto findUserById(Long userId) {
         log.info("Im find User by id service method");
         log.info("Searching for user by ID: {}", userId);
-        User user = userRepository.findById(userId).orElseThrow(()-> {
+        User user = userRepository.findByIdAndActiveTrue(userId).orElseThrow(() -> {
             log.warn("User with ID {} not found", userId);
-            return new ResourceNotFoundException(format("User with ID:%d , Not Found",userId));
+            return new ResourceNotFoundException(format("User with ID:%d , Not Found", userId));
         });
         log.info("User found with ID: {}", userId);
         return UserResponseDto.from(user);

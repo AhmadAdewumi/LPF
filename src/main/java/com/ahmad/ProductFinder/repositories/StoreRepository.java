@@ -18,6 +18,10 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     //    Long findStoreById(Long storeId);
     boolean existsById(Long storeId);
 
+    Optional<Store> findByIdAndIsActiveTrue(Long storeId);
+
+    List<Store> findByIsActiveTrue();
+
 
     @Query(value = """
             SELECT EXISTS (

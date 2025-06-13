@@ -2,11 +2,9 @@ package com.ahmad.ProductFinder.controller;
 
 import com.ahmad.ProductFinder.dtos.request.CreateStoreRequestDto;
 import com.ahmad.ProductFinder.dtos.request.UpdateStoreRequestDto;
-import com.ahmad.ProductFinder.dtos.response.ApiResponseBody;
-import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
-import com.ahmad.ProductFinder.dtos.response.StoreResponseDto;
-import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
+import com.ahmad.ProductFinder.dtos.response.*;
 import com.ahmad.ProductFinder.service.storeService.IStoreService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -117,9 +115,53 @@ public class StoreController {
     }
 
     @Operation(
-            summary = "Delete a store by ID",
-            description = "Deletes a store from the system based on its unique ID. This action is irreversible and will " +
+            summary = "Disable a store by ID",
+            description = "Disables a store from the system based on its unique ID. This action is irreversible and will " +
                     "also remove associated inventory records.",
+            parameters = {
+                    @Parameter(name = "storeId", description = "The unique ID of the store to disable", required = true, example = "1")
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Store disabled successfully.",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ApiResponseBody.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not Found - Store with the given ID does not exist."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal Server Error - An unexpected error occurred while disabling store."
+                    )
+            }
+    )
+//    @Hidden
+    @PatchMapping("/disable/{storeId}")
+    public ResponseEntity<ApiResponseBody> disableStore(@PathVariable Long storeId) {
+        log.info("Disabling store with ID: {}", storeId);
+        storeService.disableStore(storeId);
+        log.info("Store with ID: {} disabled successfully", storeId);
+        return ResponseEntity
+                .ok(new ApiResponseBody("Store with ID : " + storeId + " deactivated successfully !", null));
+    }
+
+    @Hidden
+    @PatchMapping(value = "/restore/{storeId}")
+    public ResponseEntity<ApiResponseBody> restoreUser(@PathVariable Long storeId) {
+        log.info("Restore Store endpoint called");
+        StoreResponseDto result = storeService.restoreStore(storeId);
+        log.info("Store restored successfully");
+        return ResponseEntity.ok(new ApiResponseBody("Store restored Successfully", result));
+    }
+
+
+
+    @Operation(
+            summary = "Deletes a store by ID",
+            description = "Deletes a store from the system based on its unique ID. This action is irreversible and will also remove associated inventory records.",
             parameters = {
                     @Parameter(name = "storeId", description = "The unique ID of the store to delete", required = true, example = "1")
             },

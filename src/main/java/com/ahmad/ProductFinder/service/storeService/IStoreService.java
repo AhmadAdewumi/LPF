@@ -13,7 +13,11 @@ public interface IStoreService {
 
     StoreResponseDto updateStore(Long storeId, UpdateStoreRequestDto dto);
 
-    void deleteStore(long storeId);
+    void deleteStore(Long storeId);
+
+    void disableStore(long storeId);
+
+    StoreResponseDto restoreStore(Long storeId);
 
     StoreResponseDto getStoreById(Long storeId);
 
