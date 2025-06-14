@@ -19,7 +19,7 @@ public interface IStoreService {
 
     StoreResponseDto restoreStore(Long storeId);
 
-    StoreResponseDto getStoreById(Long storeId);
+    StoreResponseDto getStoreUsingStoreId(Long storeId);
 
     List<StoreResponseDto> getAllStores();
     // Returns stores within radius from (lat, long)
@@ -28,9 +28,9 @@ public interface IStoreService {
 
     List<NearbyStoreResponseDto> findNearbyStoresWithProductName(double latitude, double longitude, double radiusInKm, String productName);
 
-    List<NearbyStoreResponseDto> findNearbyStoresWithProductId(double latitude, double longitude, double radiusInKm, Long productId);
+    List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId);
 
-    List<StoreWithInventoryDto> searchStoresByName(String storeName);
+    List<StoreWithInventoryDto> searchStoresUsingStoreName(String storeName);
 
 
 

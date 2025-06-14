@@ -1,6 +1,6 @@
 package com.ahmad.ProductFinder.dtos.request;
 
-import io.swagger.v3.oas.annotations.media.Schema; // Import the Schema annotation
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(
         name = "UpdateImageRequest",

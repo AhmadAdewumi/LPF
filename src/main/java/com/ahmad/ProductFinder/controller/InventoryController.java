@@ -87,10 +87,10 @@ public class InventoryController {
             }
     )
     @PatchMapping(value = "/update/{inventoryId}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponseBody> updateInventory(@PathVariable Long inventoryId,
+    public ResponseEntity<ApiResponseBody> updateInventoryUsingInventoryId(@PathVariable Long inventoryId,
                                                            @Valid @RequestBody UpdateInventoryRequestDto request) {
         log.info("Received request to update inventory with ID: {}", inventoryId);
-        Inventory updatedInventory = inventoryService.updateInventory(inventoryId, request);
+        Inventory updatedInventory = inventoryService.updateInventoryByInventoryId(inventoryId, request);
         log.info("Inventory with ID: {} updated successfully", inventoryId);
         return ResponseEntity.ok(new ApiResponseBody("Inventory updated successfully ", updatedInventory));
     }
@@ -114,9 +114,9 @@ public class InventoryController {
             }
     )
     @DeleteMapping("/delete/{inventoryId}")
-    public ResponseEntity<ApiResponseBody> deleteInventory(@PathVariable Long inventoryId) {
+    public ResponseEntity<ApiResponseBody> deleteInventoryUsingInventoryId(@PathVariable Long inventoryId) {
         log.info("Request to delete inventory with ID: {}", inventoryId);
-        inventoryService.deleteInventoryById(inventoryId);
+        inventoryService.deleteInventoryByInventoryId(inventoryId);
         log.info("Inventory with ID: {} deleted successfully", inventoryId);
         return ResponseEntity.ok(new ApiResponseBody("Inventory deleted successfully ", null));
     }
@@ -138,7 +138,7 @@ public class InventoryController {
     @GetMapping("/all")
     public ResponseEntity<ApiResponseBody> getAllInventories() {
         log.info("Fetching all active inventories");
-        var results = inventoryService.getAllInventories();
+        var results = inventoryService.getAllActiveInventories();
         log.info("Fetched {} inventory record(s)", results.size());
         return ResponseEntity.ok(
                 new ApiResponseBody("List of all active inventories ", results)
@@ -163,9 +163,9 @@ public class InventoryController {
             }
     )
     @GetMapping("/by-store/{storeId}")
-    public ResponseEntity<ApiResponseBody> getInventoryByStore(@PathVariable Long storeId) {
+    public ResponseEntity<ApiResponseBody> getInventoryUsingStoreId(@PathVariable Long storeId) {
         log.info("Fetching inventory for storeId: {}", storeId);
-        var results = inventoryService.getInventoryByStore(storeId);
+        var results = inventoryService.getInventoryUsingStoreId(storeId);
         log.info("Fetched {} inventory record(s) for storeId: {}", results.size(), storeId);
         return ResponseEntity.ok(
                 new ApiResponseBody("Inventories for store, " + storeId + " : ", results)
@@ -190,9 +190,9 @@ public class InventoryController {
             }
     )
     @GetMapping("/by-product/{productId}")
-    public ResponseEntity<ApiResponseBody> getInventoryByProduct(@PathVariable Long productId) {
+    public ResponseEntity<ApiResponseBody> getInventoryUsingProductId(@PathVariable Long productId) {
         log.info("Fetching inventory for productId: {}", productId);
-        var results = inventoryService.getInventoryByProduct(productId);
+        var results = inventoryService.getInventoryUsingProductId(productId);
         log.info("Fetched {} inventory record(s) for productId: {}", results.size(), productId);
         return ResponseEntity.ok(
                 new ApiResponseBody("Inventories for this product with ID " + productId + " : ", results)
@@ -248,7 +248,7 @@ public class InventoryController {
     @GetMapping("/by-price")
     public ResponseEntity<ApiResponseBody> getInventoryByPriceRange(@RequestParam BigDecimal min, @RequestParam BigDecimal max) {
         log.info("Fetching inventories within price range: {} - {}", min, max);
-        var results = inventoryService.getInventoryForAProductWithinPriceRange(min, max);
+        var results = inventoryService.getInventoryForProductWithinPriceRange(min, max);
         log.info("Fetched {} inventory record(s) within price range: {} - {}", results.size(), min, max);
         return ResponseEntity.ok(
                 new ApiResponseBody("Inventories within price range " + min + " and " + max + " : ", results)
@@ -273,9 +273,9 @@ public class InventoryController {
             }
     )
     @GetMapping("/stores-with-product/{productId}")
-    public ResponseEntity<ApiResponseBody> getStoresWhereProductAvailable(@PathVariable Long productId) {
+    public ResponseEntity<ApiResponseBody> getStoresWithProductInStockUsingProductId(@PathVariable Long productId) {
         log.info("Fetching stores where productId: {} is available", productId);
-        var results = inventoryService.getStoreWhereSpecificProductAvailable(productId);
+        var results = inventoryService.getStoresWithProductInStock(productId);
         log.info("Found {} store(s) with productId: {}", results.size(), productId);
         return ResponseEntity.ok(
                 new ApiResponseBody("Stores with available product : ", results)

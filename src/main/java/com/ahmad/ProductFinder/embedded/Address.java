@@ -1,7 +1,6 @@
 package com.ahmad.ProductFinder.embedded;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

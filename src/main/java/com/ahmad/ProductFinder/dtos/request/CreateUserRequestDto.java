@@ -1,10 +1,10 @@
 package com.ahmad.ProductFinder.dtos.request;
 
 import com.ahmad.ProductFinder.models.Role;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import io.swagger.v3.oas.annotations.media.Schema; // Import the Schema annotation
 
 import java.time.LocalDateTime;
 import java.util.Collection;

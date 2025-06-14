@@ -1,18 +1,18 @@
 package com.ahmad.ProductFinder.service.inventoryService;
 
 import com.ahmad.ProductFinder.dtos.entityDto.StoreDto;
+import com.ahmad.ProductFinder.dtos.request.CreateInventoryRequestDto;
+import com.ahmad.ProductFinder.dtos.request.UpdateInventoryRequestDto;
+import com.ahmad.ProductFinder.dtos.response.InventoryResponseDto;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.AlreadyExistsException;
-import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.IllegalArgumentException;
+import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
 import com.ahmad.ProductFinder.models.Inventory;
 import com.ahmad.ProductFinder.models.Product;
 import com.ahmad.ProductFinder.models.Store;
 import com.ahmad.ProductFinder.repositories.InventoryRepository;
 import com.ahmad.ProductFinder.repositories.ProductRepository;
 import com.ahmad.ProductFinder.repositories.StoreRepository;
-import com.ahmad.ProductFinder.dtos.request.CreateInventoryRequestDto;
-import com.ahmad.ProductFinder.dtos.request.UpdateInventoryRequestDto;
-import com.ahmad.ProductFinder.dtos.response.InventoryResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -82,7 +82,7 @@ public class InventoryService implements IInventoryService {
 
     //SOFT DELETE IMPL maybe later
     @Override
-    public void deleteInventoryById(Long inventoryId) {
+    public void deleteInventoryByInventoryId(Long inventoryId) {
         log.info("deleteInventoryById() invoked | inventoryId={}", inventoryId);
         inventoryRepository.findById(inventoryId)
                 .orElseThrow(() -> {
@@ -94,7 +94,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
-    public Inventory updateInventory(Long inventoryId, UpdateInventoryRequestDto dto) {
+    public Inventory updateInventoryByInventoryId(Long inventoryId, UpdateInventoryRequestDto dto) {
         log.info("updateInventory() invoked | inventoryId={}, price={}, quantity={}, isActive={}",
                 inventoryId, dto.getPrice(), dto.getStockQuantity(), dto.getIsActive());
 
@@ -119,7 +119,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
-    public List<InventoryResponseDto> getAllInventories() {
+    public List<InventoryResponseDto> getAllActiveInventories() {
         log.info("getAllInventories() invoked");
         List<Inventory> activeOnes = inventoryRepository.findAllByIsActiveTrue();
         log.debug("Active inventories retrieved: {}", activeOnes.size());
@@ -141,7 +141,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
-    public List<InventoryResponseDto> getInventoryByStore(Long storeId) {
+    public List<InventoryResponseDto> getInventoryUsingStoreId(Long storeId) {
         log.info("getInventoryByStore() invoked | storeId={}", storeId);
         if (!storeRepository.existsById(storeId)) {
             log.warn("Store not found | storeId={}", storeId);
@@ -153,7 +153,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
-    public List<InventoryResponseDto> getInventoryByProduct(Long productId) {
+    public List<InventoryResponseDto> getInventoryUsingProductId(Long productId) {
         log.info("getInventoryByProduct() invoked | productId={}", productId);
         if (!productRepository.existsById(productId)) {
             log.warn("Product not found | productId={}", productId);
@@ -178,7 +178,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
-    public List<InventoryResponseDto> getInventoryForAProductWithinPriceRange(BigDecimal minimumPrice, BigDecimal maximumPrice) {
+    public List<InventoryResponseDto> getInventoryForProductWithinPriceRange(BigDecimal minimumPrice, BigDecimal maximumPrice) {
         log.info("getInventoryForAProductWithinPriceRange() invoked | minPrice={}, maxPrice={}", minimumPrice, maximumPrice);
         if (minimumPrice == null || maximumPrice == null) {
             log.warn("Null price range passed to inventory filter");
@@ -215,7 +215,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
-    public List<StoreDto> getStoreWhereSpecificProductAvailable(Long productId) {
+    public List<StoreDto> getStoresWithProductInStock(Long productId) {
         log.info("getStoreWhereSpecificProductAvailable() invoked | productId={}", productId);
         if (!productRepository.existsById(productId)) {
             log.warn("Product not found | productId={}", productId);

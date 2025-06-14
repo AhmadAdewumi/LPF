@@ -139,7 +139,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserResponseDto findUserById(Long userId) {
+    public UserResponseDto findUserByUserId(Long userId) {
         log.info("Im find User by id service method");
         log.info("Searching for user by ID: {}", userId);
         User user = userRepository.findByIdAndActiveTrue(userId).orElseThrow(() -> {
@@ -151,7 +151,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean getAuthenticatedUser(String usernameParam) {
+    public boolean getAuthenticatedUser(String usernameParam) { //username parameter is different from that got from authentication
         log.info("In get authenticated user service method");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();

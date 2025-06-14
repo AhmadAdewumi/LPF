@@ -142,7 +142,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<ApiResponseBody> getProductById(@PathVariable Long productId) {
         log.info("GET api/v1/product/productId - retrieving product with ID: {}", productId);
-        ProductResponseDto result = productService.getProductById(productId);
+        ProductResponseDto result = productService.getProductUsingProductId(productId);
         log.info("Product retrieved with ID: {}", result.id());
         return ResponseEntity
                 .ok(new ApiResponseBody("Product with ID : " + productId + " retrieved successfully !", result));
@@ -174,7 +174,7 @@ public class ProductController {
     @DeleteMapping("/delete/{productId}")
     public ResponseEntity<ApiResponseBody> deleteStore(@PathVariable Long productId) {
         log.info("GET api/v1/product/delete/productId - deleting product with ID: {}", productId);
-        productService.deleteProduct(productId);
+        productService.deleteProductUsingProductId(productId);
         log.info("Product with ID: {}, deleted!", productId);
         return ResponseEntity
                 .ok(new ApiResponseBody("Product with ID : " + productId + " deleted successfully !", null));
@@ -260,7 +260,7 @@ public class ProductController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponseBody> searchProductsByName(@RequestParam String productName) {
         log.info("Received request to search products by name: {}", productName);
-        List<ProductResponseDto> results = productService.searchProductsByName(productName);
+        List<ProductResponseDto> results = productService.searchProductsByProductName(productName);
         log.info("Found {} product(s) matching name: {}", results.size(), productName);
         return ResponseEntity
                 .ok(new ApiResponseBody("Products matching name retrieved successfully !", results));

@@ -49,12 +49,12 @@ public class ImageController {
             }
     )
     @PostMapping(value = "/upload/{productId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponseBody> uploadImage(@PathVariable Long productId,
+    public ResponseEntity<ApiResponseBody> uploadImageToCloudinary(@PathVariable Long productId,
                                                        @RequestPart("file") MultipartFile file,
                                                        @RequestPart(value = "altText") String altText) {
 
         log.info("Uploading image for productId: {} with altText: {}", productId, altText);
-        String imageUrl = imageService.uploadImage(productId, file, altText);
+        String imageUrl = imageService.uploadImageToCloudinary(productId, file, altText);
         log.info("Image uploaded successfully for productId: {}. Image URL: {}", productId, imageUrl);
         return ResponseEntity.ok(new ApiResponseBody("Image uploaded successfully for product " + productId, imageUrl));
     }
@@ -85,15 +85,17 @@ public class ImageController {
                     @ApiResponse(responseCode = "500", description = "Internal server error.")
             }
     )
-    @PatchMapping(value = "/update/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponseBody> updateImage(
-            @PathVariable Long id,
+    @PatchMapping(value = "/update/{imageId}",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponseBody> updateImageDetails(
+            @PathVariable Long imageId,
             @RequestBody UpdateImageRequestDto requestDto) {
-        log.info("Updating image details for imageId: {}", id);
-        ImageResponseDto result = imageService.updateImageDetails(id, requestDto);
-        log.info("Image details updated successfully for imageId: {}", id);
+        log.info("Updating image details for imageId: {}", imageId);
+        ImageResponseDto result = imageService.updateImageDetails(imageId, requestDto);
+        log.info("Image details updated successfully for imageId: {}", imageId);
         return ResponseEntity.ok(new ApiResponseBody("Image details updated successfully", result));
     }
+
+
 
     @Operation(
             summary = "Get images by product ID",
@@ -115,9 +117,9 @@ public class ImageController {
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponseBody> getImagesByProductId(@PathVariable Long productId) {
         log.info("Fetching images for productId: {}", productId);
-        List<ImageResponseDto> results = imageService.getImagesByProductId(productId);
-        log.info("Fetched {} image(s) for productId: {}", results.size(), productId);
-        return ResponseEntity.ok(new ApiResponseBody("Images fetched successfully for product " + productId, results));
+        List<ImageResponseDto> resultList = imageService.getImagesByProductId(productId);
+        log.info("Fetched {} image(s) for productId: {}", resultList.size(), productId);
+        return ResponseEntity.ok(new ApiResponseBody("Images fetched successfully for product " + productId, resultList));
     }
 
 
@@ -140,9 +142,9 @@ public class ImageController {
             }
     )
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponseBody> deleteImage(@RequestParam String publicId) {
+    public ResponseEntity<ApiResponseBody> deleteImageByPublicId(@RequestParam String publicId) {
         log.info("Request to delete image with publicId: {}", publicId);
-        imageService.deleteImage(publicId);
+        imageService.deleteImageUsingPublicId(publicId);
         log.info("Image with publicId: {} deleted successfully", publicId);
         return ResponseEntity.ok(new ApiResponseBody("Image with ID " + publicId + " deleted successfully!", null));
     }
@@ -165,11 +167,11 @@ public class ImageController {
                     @ApiResponse(responseCode = "500", description = "Internal server error.")
             }
     )
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseBody> getImagesById(@PathVariable Long id) {
-        log.info("Fetching image with id: {}", id);
-        ImageResponseDto result = imageService.getImageById(id);
-        log.info("Fetched image details for id: {}", id);
-        return ResponseEntity.ok(new ApiResponseBody("Image with ID " + id + " fetched successfully!", result));
+    @GetMapping("/{imageId}")
+    public ResponseEntity<ApiResponseBody> getImagesByImageId(@PathVariable Long imageId) {
+        log.info("Fetching image with id: {}", imageId);
+        ImageResponseDto result = imageService.getImageById(imageId);
+        log.info("Fetched image details for id: {}", imageId);
+        return ResponseEntity.ok(new ApiResponseBody("Image with ID " + imageId + " fetched successfully!", result));
     }
 }

@@ -2,7 +2,10 @@ package com.ahmad.ProductFinder.controller;
 
 import com.ahmad.ProductFinder.dtos.request.CreateStoreRequestDto;
 import com.ahmad.ProductFinder.dtos.request.UpdateStoreRequestDto;
-import com.ahmad.ProductFinder.dtos.response.*;
+import com.ahmad.ProductFinder.dtos.response.ApiResponseBody;
+import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
+import com.ahmad.ProductFinder.dtos.response.StoreResponseDto;
+import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
 import com.ahmad.ProductFinder.service.storeService.IStoreService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -183,7 +186,7 @@ public class StoreController {
             }
     )
     @DeleteMapping("/delete/{storeId}")
-    public ResponseEntity<ApiResponseBody> deleteStore(@PathVariable Long storeId) {
+    public ResponseEntity<ApiResponseBody> deleteStoreUsingStoreId(@PathVariable Long storeId) {
         log.info("Deleting store with ID: {}", storeId);
         storeService.deleteStore(storeId);
         log.info("Store with ID: {} deleted successfully", storeId);
@@ -242,7 +245,7 @@ public class StoreController {
     @GetMapping("/{storeId}")
     public ResponseEntity<ApiResponseBody> getStoreById(@PathVariable Long storeId) {
         log.info("Fetching store with ID: {}", storeId);
-        StoreResponseDto store = storeService.getStoreById(storeId);
+        StoreResponseDto store = storeService.getStoreUsingStoreId(storeId);
         log.info("Store with ID: {} fetched successfully", storeId);
         return ResponseEntity
                 .ok(new ApiResponseBody("Store with ID : " + storeId + " retrieved successfully !", store));
@@ -303,9 +306,9 @@ public class StoreController {
             }
     )
     @GetMapping("/search")
-    public ResponseEntity<ApiResponseBody> searchStoresByName(@RequestParam String storeName) {
+    public ResponseEntity<ApiResponseBody> searchStoresByStoreName(@RequestParam String storeName) {
         log.info("Searching stores with name like: {}", storeName);
-        List<StoreWithInventoryDto> results = storeService.searchStoresByName(storeName);
+        List<StoreWithInventoryDto> results = storeService.searchStoresUsingStoreName(storeName);
         log.info("Found {} store(s) matching '{}'", results.size(), storeName);
         return ResponseEntity
                 .ok(new ApiResponseBody(format("Stores matching value,'%s' , provided successfully !", storeName), results));
@@ -393,7 +396,7 @@ public class StoreController {
         log.info("Searching nearby stores with productId: {} at lat: {}, long: {}, radius: {} km",
                 productId, latitude, longitude, radiusInKm);
         List<NearbyStoreResponseDto> results = storeService
-                .findNearbyStoresWithProductId(latitude, longitude, radiusInKm, productId);
+                .findNearbyStoresByProductId(latitude, longitude, radiusInKm, productId);
         log.info("Found {} nearby store(s) with productId: {}", results.size(), productId);
         return ResponseEntity.ok(new ApiResponseBody(
                 format("Nearby Stores within range %.0f km With Product ID: %d fetched successfully !", radiusInKm, productId),

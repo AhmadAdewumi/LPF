@@ -1,6 +1,5 @@
 package com.ahmad.ProductFinder.service.storeService;
 
-import com.ahmad.ProductFinder.dtos.entityDto.AddressDto;
 import com.ahmad.ProductFinder.dtos.request.CreateStoreRequestDto;
 import com.ahmad.ProductFinder.dtos.request.UpdateStoreRequestDto;
 import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
@@ -8,6 +7,7 @@ import com.ahmad.ProductFinder.dtos.response.StoreResponseDto;
 import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
 import com.ahmad.ProductFinder.embedded.Address;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.AlreadyExistsException;
+import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.IllegalArgumentException;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
 import com.ahmad.ProductFinder.models.Store;
 import com.ahmad.ProductFinder.models.User;
@@ -39,13 +39,19 @@ public class StoreService implements IStoreService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final StoreQueryService queryService;
+    private final StoreMapper storeMapper;
+    private final StoreQueryService storeQueryService;
 
-    public StoreService(GeometryFactory geometryFactory, StoreRepository storeRepository, UserService userService, UserRepository userRepository, ProductRepository productRepository) {
+    public StoreService(GeometryFactory geometryFactory, StoreRepository storeRepository, UserService userService, UserRepository userRepository, ProductRepository productRepository, StoreQueryService queryService, StoreMapper storeMapper, StoreQueryService storeQueryService) {
         this.geometryFactory = geometryFactory;
         this.storeRepository = storeRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.queryService = queryService;
+        this.storeMapper = storeMapper;
+        this.storeQueryService = storeQueryService;
     }
 
     //User clicks map in the FE , FE gets coordinates that is lat and long send to BE ,
@@ -200,7 +206,7 @@ public class StoreService implements IStoreService {
 
 
     @Override
-    public StoreResponseDto getStoreById(Long storeId) {
+    public StoreResponseDto getStoreUsingStoreId(Long storeId) {
         log.info("In find by id store service method");
         log.info("Fetching store with ID: {}", storeId);
 
@@ -236,34 +242,25 @@ public class StoreService implements IStoreService {
         log.info("find nearby stores service method invoked");
         log.info("Searching for nearby stores within {} km of location (lat={}, long={})", radiusInKm, latitude, longitude);
 
-        double radiusInMetres = radiusInKm * 1000;
-        List<StoreProjection> results = storeRepository.getNearbyStores(latitude, longitude, radiusInMetres);
+        double radiusInMetres = convertKmToMetres(radiusInKm);
+        List<StoreProjection> results = storeQueryService.retrieveNearbyStores(latitude, longitude, radiusInMetres);
 
         if (results.isEmpty()) {
             log.warn("No nearby stores found within radius {} km", radiusInKm);
             throw new ResourceNotFoundException("No stores found within " + radiusInKm + "km of your location !");
         }
 
-        return results.stream()
-                .map(
-                        proj -> new NearbyStoreResponseDto(
-                                proj.getId(),
-                                proj.getName(),
-                                new AddressDto(proj.getStreet(), proj.getCity(), proj.getState(), proj.getCountry(), proj.getPostal_code()),
-                                proj.getDescription(),
-                                proj.getLatitude(),
-                                proj.getLongitude(),
-                                true,
-                                true,
-                                proj.getDistance_in_metres()
-                        )
-                ).toList();
+        return storeMapper.toNearbyStoreDtos(results);
     }
 
     @Override
-    public List<StoreWithInventoryDto> searchStoresByName(String storeName) {
+    public List<StoreWithInventoryDto> searchStoresUsingStoreName(String storeName) {
         log.info("search store by name service method invoked");
         log.info("Searching for stores with name containing: {}", storeName);
+
+        if (storeName==null || storeName.trim().length()<3){
+            throw new IllegalArgumentException("Search term must be at least 3 characters");
+        }
 
         List<Store> stores = storeRepository.searchStoreByName(storeName);
 
@@ -283,77 +280,35 @@ public class StoreService implements IStoreService {
         log.info("find nearby stores with product name service method invoked");
         log.info("Searching for nearby stores with product '{}' within {} km", productName, radiusInKm);
 
-        double radiusInMetres = radiusInKm * 1000;
-        List<StoreProjection> results = storeRepository.searchNearbyStoresWithProductName(latitude, longitude, productName, radiusInMetres);
+        double radiusInMetres = convertKmToMetres(radiusInKm);
+        List<StoreProjection> results = storeQueryService.searchNearbyStoresWithProductName(latitude,longitude,radiusInMetres,productName);
 
         if (results.isEmpty()) {
             log.warn("No nearby stores found with product: {}", productName);
             throw new ResourceNotFoundException("No product found with name : " + productName);
         }
 
-        return results.stream()
-                .map(
-                        proj -> new NearbyStoreResponseDto(
-                                proj.getId(),
-                                proj.getName(),
-                                new AddressDto(proj.getStreet(), proj.getCity(), proj.getState(), proj.getCountry(), proj.getPostal_code()),
-                                proj.getDescription(),
-                                proj.getLatitude(),
-                                proj.getLongitude(),
-                                true,
-                                true,
-                                proj.getDistance_in_metres()
-                        )
-                ).toList();
+        return storeMapper.toNearbyStoreDtos(results);
     }
 
     @Override
-    public List<NearbyStoreResponseDto> findNearbyStoresWithProductId(double latitude, double longitude, double radiusInKm, Long productId) {
+    public List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId) {
         log.info("find nearby stores with productID service method invoked");
         log.info("Searching for nearby stores with product ID: {} within {} km", productId, radiusInKm);
 
-        productRepository.findById(productId)
-                .orElseThrow(() -> {
-                    log.error("Product with ID {} not found", productId);
-                    return new ResourceNotFoundException(format("No products found with ID: %d ", productId));
-                });
-
-        double radiusInMetres = radiusInKm * 1000;
-        List<StoreProjection> results = storeRepository
-                .findNearbyStoresWithProductId(latitude, longitude, productId, radiusInMetres)
-                .orElseThrow(() -> {
-                    log.warn("No nearby stores found for product ID {}", productId);
-                    return new ResourceNotFoundException("No Nearby Product with ID " + productId + " Found !");
-                });
+        double radiusInMetres = convertKmToMetres(radiusInKm);
+        List<StoreProjection> results = storeQueryService.searchNearbyStoresWithProductId(latitude,longitude,radiusInMetres,productId);
 
         if (results.isEmpty()) {
             log.warn("No nearby stores found within {} km that have product ID {}", radiusInKm, productId);
             throw new ResourceNotFoundException(format("Oops, No nearby stores within radius, %.0f km , have that product in stock", radiusInKm));
         }
 
-        return results.stream()
-                .map(
-                        proj -> new NearbyStoreResponseDto(
-                                proj.getId(),
-                                proj.getName(),
-                                new AddressDto(proj.getStreet(), proj.getCity(), proj.getState(), proj.getCountry(), proj.getPostal_code()),
-                                proj.getDescription(),
-                                proj.getLatitude(),
-                                proj.getLongitude(),
-                                true,
-                                true,
-                                proj.getDistance_in_metres()
-                        )
-                ).toList();
+        return storeMapper.toNearbyStoreDtos(results);
     }
 
-//    @Override
-//    public List<StoreResponseDto> findStoresInLocationWithProductName(double latitude, double longitude, double radiusInKm, String productName) {
-//        return List.of();
-//    }
-//
-//    @Override
-//    public List<StoreResponseDto> findStoresInLocationWithProductId(double latitude, double longitude, double radiusInKm, Long productId) {
-//        return List.of();
-//    }
+    private double convertKmToMetres(double km){
+        return km*1000;
+    }
+
 }

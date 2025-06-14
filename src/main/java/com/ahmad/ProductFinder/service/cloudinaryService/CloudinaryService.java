@@ -21,7 +21,7 @@ public class CloudinaryService implements ICloudinaryService {
     private Cloudinary cloudinary;
 
     @Override
-    public CloudinaryResponseDto uploadFile(MultipartFile file, String folderName) {
+    public CloudinaryResponseDto uploadFileToCloudinary(MultipartFile file, String folderName) {
         log.info("Uploading file to Cloudinary. Filename: {}, Folder: {}", file.getOriginalFilename(), folderName);
 
         if (file.isEmpty()) {
@@ -69,7 +69,7 @@ public class CloudinaryService implements ICloudinaryService {
     }
 
     @Override
-    public void deleteFile(String publicId) {
+    public void deleteFileUsingPublicId(String publicId) {
         log.info("Attempting to delete file from Cloudinary. Public ID: {}", publicId);
         try {
             //            Map<String, String> param = new HashMap<>();

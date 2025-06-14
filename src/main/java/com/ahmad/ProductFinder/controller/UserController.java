@@ -130,7 +130,7 @@ public class UserController {
             }
     )
     @PatchMapping("/disable/{userId}")
-    public ResponseEntity<ApiResponseBody> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponseBody> deleteUserByUserId(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok(new ApiResponseBody("User deactivated Successfully", null));
     }
@@ -201,7 +201,7 @@ public class UserController {
     )
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponseBody> getUserById(@PathVariable Long userId) {
-        UserResponseDto result = userService.findUserById(userId);
+        UserResponseDto result = userService.findUserByUserId(userId);
         return ResponseEntity.ok(new ApiResponseBody("User retrieved Successfully", result));
     }
 

@@ -15,4 +15,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> searchDistinctProductByNameContainingIgnoreCase(String name);
 
     List<Product> findByPriceBetween(BigDecimal minPrice,BigDecimal maxPrice);
+
+    Optional<Product> findByNameIgnoreCase(String productName);
+
+
 }

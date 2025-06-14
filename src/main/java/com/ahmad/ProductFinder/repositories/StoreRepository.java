@@ -64,7 +64,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
                 )
             ORDER BY  distance_in_metres ASC
             """, nativeQuery = true)
-    List<StoreProjection> getNearbyStores(
+    Optional<List<StoreProjection>> getNearbyStores(
             @Param("lat") double latitude,
             @Param("lon") double longitude,
             @Param("radius") double radiusInMetres
@@ -90,7 +90,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             SELECT DISTINCT s 
             FROM Store s
             WHERE s.isActive=true 
-            AND LOWER(s.name) LIKE LOWER(CONCAT('%', :storeName,'%') )
+            AND LOWER(s.name) LIKE LOWER(CONCAT(:storeName,'%') )
             """
     )
     List<Store> searchStoreByName(@Param("storeName") String storeName);
@@ -129,7 +129,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             ORDER BY distance_in_metres ASC
             """,
             nativeQuery = true)
-    List<StoreProjection> searchNearbyStoresWithProductName(
+    Optional<List<StoreProjection>> searchNearbyStoresWithProductName(
             @Param("lat") double latitude,
             @Param("lon") double longitude,
             @Param("productName") String productName,

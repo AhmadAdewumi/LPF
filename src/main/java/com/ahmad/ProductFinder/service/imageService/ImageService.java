@@ -33,7 +33,7 @@ public class ImageService implements IImageService {
     }
 
     @Override
-    public String uploadImage(Long productId,MultipartFile file, String altText) {
+    public String uploadImageToCloudinary(Long productId, MultipartFile file, String altText) {
         log.info("Uploading image for Product ID: {}, FileName: {}", productId, file.getOriginalFilename());
         String folderName="product-finder";
         Product product = productRepository.findById(productId)
@@ -41,7 +41,7 @@ public class ImageService implements IImageService {
                     log.warn("Product not found for ID: {}", productId);
                     return new ResourceNotFoundException("Product not found with id: " + productId);
                 });
-        CloudinaryResponseDto response = cloudinaryService.uploadFile(file, folderName);
+        CloudinaryResponseDto response = cloudinaryService.uploadFileToCloudinary(file, folderName);
         Image image = Image.builder()
                 .url(response.url())
                 .fileName(file.getOriginalFilename())
@@ -62,10 +62,10 @@ public class ImageService implements IImageService {
 
     @Transactional
     @Override
-    public void deleteImage(String publicId) {
+    public void deleteImageUsingPublicId(String publicId) {
         log.info("Deleting image from Cloudinary and database. Public ID: {}", publicId);
         Image image = imageRepository.findByPublicId(publicId).orElseThrow(()-> new ResourceNotFoundException("Image not found!"));
-        cloudinaryService.deleteFile(publicId);
+        cloudinaryService.deleteFileUsingPublicId(publicId);
         Product product = image.getProduct();
         product.removeImage(image);
         try {
@@ -141,15 +141,15 @@ public class ImageService implements IImageService {
     }
 
     @Override
-    public ImageResponseDto getImageById(Long id) {
-        log.debug("Fetching image by ID: {}", id);
+    public ImageResponseDto getImageById(Long imageId) {
+        log.debug("Fetching image by ID: {}", imageId);
         Image image = imageRepository
-                .findById(id)
+                .findById(imageId)
                 .orElseThrow(() -> {
-                    log.warn("Image not found. ID: {}", id);
-                    return new ResourceNotFoundException ("No image found with this 'id' " + id);
+                    log.warn("Image not found. ID: {}", imageId);
+                    return new ResourceNotFoundException ("No image found with this 'id' " + imageId);
                 });
-        log.info("Image retrieved successfully. ID: {}", id);
+        log.info("Image retrieved successfully. ID: {}", imageId);
         return new ImageResponseDto(
                 image.getId(),
                 image.getUrl(),

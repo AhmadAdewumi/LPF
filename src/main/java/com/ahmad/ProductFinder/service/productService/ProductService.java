@@ -65,7 +65,7 @@ public class ProductService implements IProductService {
 
     @Transactional
     @Override
-    public void deleteProduct(Long productId) {
+    public void deleteProductUsingProductId(Long productId) {
         log.info("deleteProduct service method invoked for ID: {}", productId);
 
         Product result = productRepository.findById(productId)
@@ -79,7 +79,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductResponseDto getProductById(Long productId) {
+    public ProductResponseDto getProductUsingProductId(Long productId) {
         log.info("getProductById service method invoked for ID: {}", productId);
 
         Product result = productRepository.findById(productId)
@@ -124,10 +124,10 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductResponseDto> searchProductsByName(String name) {
-        log.info("searchProductsByName service method invoked for name: {}", name);
+    public List<ProductResponseDto> searchProductsByProductName(String productName) {
+        log.info("searchProductsByName service method invoked for name: {}", productName);
 
-        return productRepository.searchDistinctProductByNameContainingIgnoreCase(name)
+        return productRepository.searchDistinctProductByNameContainingIgnoreCase(productName)
                 .stream()
                 .map(ProductResponseDto::from)
                 .toList();

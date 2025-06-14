@@ -1,8 +1,8 @@
 package com.ahmad.ProductFinder.dtos.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import io.swagger.v3.oas.annotations.media.Schema; // Import Schema annotation
 
 
 @Data
