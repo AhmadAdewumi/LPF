@@ -292,6 +292,32 @@ public class StoreService implements IStoreService {
     }
 
     @Override
+    public List<NearbyStoreResponseDto> searchByFullTextSearch(String query){
+        log.info("Searching for nearby stores using query: {}", query);
+        List<StoreProjection> results = storeQueryService.fullTextSearch(query);
+
+        if (results.isEmpty()){
+            log.warn("No search matching: {}", query);
+            throw new ResourceNotFoundException("No stores matching: " + query);
+        }
+
+        return storeMapper.toNearbyStoreDtos(results);
+    }
+
+    @Override
+    public List<NearbyStoreResponseDto> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm){
+        log.info("Initiating nearby store search with FTS. Query: '{}', Latitude: {}, Longitude: {}, Distance (km): {}",
+                query, lat, lon, radiusInKm);
+        double radiusInMetres = convertKmToMetres(radiusInKm);
+        List<StoreProjection> results = storeQueryService.searchNearbyWithByFullTextSearchAndProductInStock(query,lat,lon,radiusInMetres);
+        if (results.isEmpty()){
+            log.warn("No search for nearby stores using FTS matching: {}", query);
+            throw new ResourceNotFoundException("No Nearby stores matching: " + query);
+        }
+        return storeMapper.toNearbyStoreDtos(results);
+    }
+
+    @Override
     public List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId) {
         log.info("find nearby stores with productID service method invoked");
         log.info("Searching for nearby stores with product ID: {} within {} km", productId, radiusInKm);

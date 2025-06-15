@@ -33,6 +33,11 @@ public class StoreQueryService {
         return storeRepository.searchNearbyStoresWithProductName(latitude, longitude, productName, radiusInMetres).orElse(Collections.emptyList());
     }
 
+    public List<StoreProjection> fullTextSearch(String query){
+        return storeRepository.searchByText(query);
+    }
+
+
     public List<StoreProjection> searchNearbyStoresWithProductId(double latitude, double longitude, double radiusInMetres, Long productId) {
         productRepository.findById(productId)
                 .orElseThrow(() -> {
@@ -47,4 +52,7 @@ public class StoreQueryService {
         return storeRepository.getNearbyStores(latitude, longitude, radiusInMetres).orElse(Collections.emptyList());
     }
 
+    public List<StoreProjection> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double distanceKm){
+        return storeRepository.searchNearbyStoresByFullTextSearchAndProductInStock(query,lat,lon,distanceKm);
+    }
 }

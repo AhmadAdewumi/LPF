@@ -28,6 +28,10 @@ public interface IStoreService {
 
     List<NearbyStoreResponseDto> findNearbyStoresWithProductName(double latitude, double longitude, double radiusInKm, String productName);
 
+    List<NearbyStoreResponseDto> searchByFullTextSearch(String query);
+
+    List<NearbyStoreResponseDto> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm);
+
     List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId);
 
     List<StoreWithInventoryDto> searchStoresUsingStoreName(String storeName);

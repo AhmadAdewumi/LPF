@@ -53,13 +53,13 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
                 s.location AS location,
                 ST_Distance(
                             s.location::geography,
-                            ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography
+                            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
                 ) AS distance_in_metres
             FROM store s
             WHERE s.is_active = true
                 AND ST_DWithin(
                                 s.location::geography,
-                                ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography,
+                                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
                                 :radius
                 )
             ORDER BY  distance_in_metres ASC
@@ -112,7 +112,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
               s.location AS location,
               ST_Distance(
                 CAST(s.location AS geography),
-                ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography
+                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
               ) AS distance_in_metres
             FROM store s
             JOIN inventory i ON i.store_id = s.id
@@ -123,7 +123,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
               AND LOWER(p.name) LIKE  LOWER(CONCAT('%', :productName, '%'))
               AND ST_DWithin(
                     CAST(s.location AS geography),
-                    ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography,
+                    ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
                     :radiusInMetres
               )
             ORDER BY distance_in_metres ASC
@@ -150,7 +150,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
               s.longitude    AS longitude,
               ST_Distance(
                 CAST(s.location AS geography),
-                ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography
+                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
               )  AS distance_in_metres
             FROM store s
             JOIN inventory i ON i.store_id    = s.id
@@ -160,7 +160,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
               AND i.product_id    = :productId
               AND ST_DWithin(
                     CAST(s.location AS geography),
-                    ST_SetSRID(ST_MakePoint(:lat, :lon), 4326)::geography,
+                    ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
                     :radiusInMeters
               )
             ORDER BY distance_in_metres ASC
@@ -173,5 +173,75 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             @Param("radiusInMeters") double radiusInMetres
     );
 
+    @Query(value = """
+    SELECT
+      s.id                AS id,
+      s.name              AS name,
+      s.street            AS street,
+      s.city              AS city,
+      s.state             AS state,
+      s.country           AS country,
+      s.postal_code       AS postalCode,
+      s.description       AS description,
+      s.latitude          AS latitude,
+      s.longitude         AS longitude
+      ts_rank(
+        s.searchable,
+        plainto_tsquery('english', :query)
+      )                   AS rank
+    FROM store s
+    WHERE s.is_active
+      AND s.searchable @@ plainto_tsquery('english', :query)
+    ORDER BY rank DESC
+    LIMIT 10
+    """,
+            nativeQuery = true)
+    List<StoreProjection> searchByText(@Param("query") String query);
+
+    @Query(value = """
+    SELECT
+      s.id,
+      s.name,
+      s.description,
+      s.is_active            AS isActive,
+      s.latitude,
+      s.longitude,
+      s.street,
+      s.city,
+      s.state,
+      s.country,
+      s.postal_code          AS postalCode,
+      ts_rank(
+        s.searchable,
+        plainto_tsquery('english', :query)
+      )                       AS textRank,
+      ST_Distance(
+        s.location::geography,
+        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
+      )                       AS distance_in_metres
+    FROM store s
+    JOIN inventory i ON i.store_id = s.id
+    JOIN product p ON p.id = i.product_id
+    WHERE s.is_active
+      AND i.is_active
+      AND i.stock_quantity > 0
+      AND s.searchable @@ plainto_tsquery('english', :query)
+      AND ST_DWithin(
+            s.location::geography,
+            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+            :distance
+      )
+    ORDER BY textRank DESC, distance_in_metres ASC
+    LIMIT 10
+    """,
+            nativeQuery = true)
+    List<StoreProjection> searchNearbyStoresByFullTextSearchAndProductInStock(
+            @Param("query")  String query,
+            @Param("lat")    double latitude,
+            @Param("lon")    double longitude,
+            @Param("distance") double distanceInMetres
+    );
+
 }
+
 

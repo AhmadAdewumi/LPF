@@ -63,7 +63,7 @@ public class StoreController {
                     )
             }
     )
-    @PostMapping(value = "/create",consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponseBody> createStore(@RequestBody CreateStoreRequestDto request) {
         log.info("Creating store with name: {}", request.name());
         StoreResponseDto result = storeService.createStore(request);
@@ -107,7 +107,7 @@ public class StoreController {
                     )
             }
     )
-    @PatchMapping(value = "/update/{storeId}",consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/update/{storeId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponseBody> updateStore(@PathVariable Long storeId,
                                                        @RequestBody @Valid UpdateStoreRequestDto request) {
         log.info("Updating store with ID: {}", storeId);
@@ -159,7 +159,6 @@ public class StoreController {
         log.info("Store restored successfully");
         return ResponseEntity.ok(new ApiResponseBody("Store restored Successfully", result));
     }
-
 
 
     @Operation(
@@ -349,13 +348,75 @@ public class StoreController {
                                                                            @RequestParam double longitude,
                                                                            @RequestParam double radiusInKm,
                                                                            @RequestParam String productName) {
-        log.info("Searching nearby stores with product name '{}' at lat: {}, long: {}, radius: {} km",
+        log.info("""
+                Searching nearby stores with product name '{}' at lat: {}, long: {}, radius: {} km
+                """,
                 productName, latitude, longitude, radiusInKm);
         List<NearbyStoreResponseDto> results = storeService
                 .findNearbyStoresWithProductName(latitude, longitude, radiusInKm, productName);
         log.info("Found {} store(s) with product name '{}' nearby", results.size(), productName);
         return ResponseEntity
                 .ok(new ApiResponseBody("Nearby Stores with product Name in stock fetched successfully", results));
+    }
+
+    @Operation(
+            summary = "Searching stores using full test search",
+            description = """
+                    Retrieves a list stores matching the query provide
+                    """,
+            parameters = {
+                    @Parameter(name = "query", description = "text to search with")
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ApiResponseBody.class))
+                    )
+            }
+    )
+    @GetMapping("/search/fts")
+    public ResponseEntity<ApiResponseBody> fullTextSearch(@RequestParam String query) {
+        log.info("Searching for store with query {}", query);
+        List<NearbyStoreResponseDto> results = storeService.searchByFullTextSearch(query);
+        log.info("Found {} store(S) matching query: {} ", results.size(), query);
+        return ResponseEntity
+                .ok(new ApiResponseBody("Search results: ", results));
+    }
+
+
+
+    @Operation(
+            summary = "Search nearby stores using full-text search and geo-location",
+            description = """
+                This endpoint combines Full-Text Search (FTS) and geospatial filtering to find stores that:
+                - Have matching keywords (e.g. store or product names)
+                - Are within the given radius (in kilometers)
+                - Have products in stock and active
+                Results are sorted by text relevance and nearest distance.
+            """,
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Stores found matching query",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponseBody.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "No matching stores found",
+                            content = @Content
+                    )
+            }
+    )
+    @GetMapping("/search/nearby/fts")
+    public ResponseEntity<ApiResponseBody> searchNearbyStoresUsingFts(@RequestParam String query,
+                                                                      @RequestParam double lat,
+                                                                      @RequestParam double lon,
+                                                                      @RequestParam double radiusKm ){
+        List<NearbyStoreResponseDto> results = storeService.searchNearbyWithByFullTextSearchAndProductInStock(query, lat, lon, radiusKm);
+        return ResponseEntity
+                .ok(new ApiResponseBody("Search nearby stores using FTS results: ", results));
     }
 
     @Operation(
