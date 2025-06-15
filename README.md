@@ -113,7 +113,7 @@ cd productfinder-backend # Or whatever your project folder is named
     spring.datasource.url=jdbc:postgresql://localhost:5432/productfinder_db
     spring.datasource.username=your_db_username
     spring.datasource.password=your_db_password
-    spring.jpa.hibernate.ddl-auto=update # Or 'create' for fresh schema
+    spring.jpa.hibernate.ddl-auto=create
     spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
     spring.jpa.show-sql=true
     ```
