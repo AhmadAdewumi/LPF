@@ -223,7 +223,7 @@ These examples illustrate key API interactions. Ensure the backend application i
     "message": "Store created successfully",
     "data": {
         "id": 1,
-        "name": "Ahmad Ibraheem Stores",
+        "name": "Wumi Stores",
         "addressDto": {
             "street": "Muslim Hospital Road",
             "city": "Ede",
