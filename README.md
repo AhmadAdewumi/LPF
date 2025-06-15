@@ -267,7 +267,7 @@ These examples illustrate key API interactions. Ensure the backend application i
                 "city": "Ede",
                 "state": "Osun",
                 "country": "Nigeria",
-                "postalCode": null
+                "postalCode": 232102
             },
             "description": "Your go-to store near the uslim Hospital for any pharmaceutical needs",
             "latitude": 7.74941,
@@ -284,7 +284,7 @@ These examples illustrate key API interactions. Ensure the backend application i
                 "city": "Ede",
                 "state": "Osun",
                 "country": "Nigeria",
-                "postalCode": null
+                "postalCode": 232102
             },
             "description": "Your go-to store near the State Secretariat for office supplies, printing services, and quick bites. Perfect for civil servants and visitors!",
             "latitude": 7.7628964,
