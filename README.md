@@ -151,10 +151,15 @@ These examples illustrate key API interactions. Ensure the backend application i
 * **Request Body:**
     ```json
     {
-      "username": "testuser",
-      "email": "test@example.com",
-      "password": "SecurePassword123"
-    }
+  "username": "test-user",
+  "firstName": "user",
+  "lastName": "1",
+  "email": "test-user@gmail.com",
+  "password": "SecurePassword123",
+  "role": ["ADMIN","USER"],
+  "phoneNumber":"081........"
+}
+
     ```
 * **Expected Response (201 Created):**
     ```json
@@ -173,11 +178,11 @@ These examples illustrate key API interactions. Ensure the backend application i
 * **Request Body:**
     ```json
     {
-      "email": "test@example.com",
+      "username": "test-user",
       "password": "SecurePassword123"
     }
     ```
-* **Expected Response (200 OK):**
+* **Expected Sample Response (200 OK):**
     ```json
     {
       "token": "eyJhbGciOiJIUzI1Ni...",
@@ -198,8 +203,8 @@ These examples illustrate key API interactions. Ensure the backend application i
 * **Request Body:**
     ```json
     {
-  "name": "Ahmad Ibraheem Stores",
-  "username": "AhmadAdewumi",
+  "name": "Wumi Stores",
+  "username": "test-user",
   "address": {
     "street": "Muslim Hospital Road",
     "city": "Ede",
@@ -248,31 +253,48 @@ These examples illustrate key API interactions. Ensure the backend application i
     * `lat`: User's latitude (e.g., 34.05)
     * `lon`: User's longitude (e.g., -118.25)
     * `distanceKm`: Search radius in kilometers (e.g., 10 for 10km)
-* **Expected Response (200 OK):**
+* **Expected Sample Response (200 OK):**
     ```json
     [
       {
-    "message": "Store created successfully",
-    "data": {
-        "id": 1,
-        "name": "Ahmad Ibraheem Stores",
-        "addressDto": {
-            "street": "Muslim Hospital Road",
-            "city": "Ede",
-            "state": "Osun",
-            "country": "Nigeria",
-            "postalCode": "232101"
+    "message": "Search nearby stores using FTS results: ",
+    "data": [
+        {
+            "id": 5,
+            "name": "Wumi Stores",
+            "addressDto": {
+                "street": "Muslim Hospital Road",
+                "city": "Ede",
+                "state": "Osun",
+                "country": "Nigeria",
+                "postalCode": null
+            },
+            "description": "Your go-to store near the uslim Hospital for any pharmaceutical needs",
+            "latitude": 7.74941,
+            "longitude": 4.43901,
+            "isVerified": true,
+            "isActive": true,
+            "distanceInMetres": 1000.14033496
         },
-        "description": "Your go-to store near the muslim Hospital for any pharmaceutical needs",
-        "latitude": 7.5494,
-        "longitude": 5.43901,
-        "isVerified": true,
-        "isActive": true,
-        "ownerId": 1,
-        "createdAt": "2025-06-15T14:47:10.996181",
-        "updatedAt": "2025-06-15T14:47:10.996277"
-    }
-    }
+        {
+            "id": 4,
+            "name": "Ibraheem Stores",
+            "addressDto": {
+                "street": "okegada",
+                "city": "Ede",
+                "state": "Osun",
+                "country": "Nigeria",
+                "postalCode": null
+            },
+            "description": "Your go-to store near the State Secretariat for office supplies, printing services, and quick bites. Perfect for civil servants and visitors!",
+            "latitude": 7.7628964,
+            "longitude": 4.5199593,
+            "isVerified": true,
+            "isActive": true,
+            "distanceInMetres": 8068.27631606
+        }
+    ]
+}
      
     ]
     ```
