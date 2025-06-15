@@ -50,7 +50,7 @@ class InventoryServiceTest {
         when(inventoryRepository.findInventoryByStoreIdAndIsActiveTrueOrderByPrice(storeId)).thenReturn(inventoryList);
 
         //Act
-        List<InventoryResponseDto> result = inventoryService.getInventoryByStore(storeId);
+        List<InventoryResponseDto> result = inventoryService.getInventoryUsingStoreId(storeId);
 
         //Assert
         assertThat(result).hasSize(1);
@@ -74,7 +74,7 @@ class InventoryServiceTest {
         when(inventoryRepository.findInventoryByProductIdAndQuantityGreaterThan(  productId)).thenReturn(inventoryList);
 
         //Act
-        List<InventoryResponseDto> result = inventoryService.getInventoryByProduct(productId);
+        List<InventoryResponseDto> result = inventoryService.getInventoryUsingProductId(productId);
 
         //Assert
         assertThat(result).hasSize(1);
@@ -103,7 +103,7 @@ class InventoryServiceTest {
         when(inventoryRepository.save(any(Inventory.class))).thenAnswer(action -> action.getArgument(0));
 
         //act
-        Inventory result = inventoryService.updateInventory(inventoryId, dto);
+        Inventory result = inventoryService.updateInventoryByInventoryId(inventoryId, dto);
 
         //Assert
         assertThat(result.getPrice()).isEqualByComparingTo("50");

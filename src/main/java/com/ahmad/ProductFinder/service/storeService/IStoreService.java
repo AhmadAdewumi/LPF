@@ -9,13 +9,17 @@ import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
 import java.util.List;
 
 public interface IStoreService {
-    void createStore(CreateStoreRequestDto dto);
+    StoreResponseDto createStore(CreateStoreRequestDto dto);
 
     StoreResponseDto updateStore(Long storeId, UpdateStoreRequestDto dto);
 
-    void deleteStore(long storeId);
+    void deleteStore(Long storeId);
 
-    StoreResponseDto getStoreById(Long storeId);
+    void disableStore(long storeId);
+
+    StoreResponseDto restoreStore(Long storeId);
+
+    StoreResponseDto getStoreUsingStoreId(Long storeId);
 
     List<StoreResponseDto> getAllStores();
     // Returns stores within radius from (lat, long)
@@ -24,9 +28,13 @@ public interface IStoreService {
 
     List<NearbyStoreResponseDto> findNearbyStoresWithProductName(double latitude, double longitude, double radiusInKm, String productName);
 
-    List<NearbyStoreResponseDto> findNearbyStoresWithProductId(double latitude, double longitude, double radiusInKm, Long productId);
+    List<NearbyStoreResponseDto> searchByFullTextSearch(String query);
 
-    List<StoreWithInventoryDto> searchStoresByName(String storeName);
+    List<NearbyStoreResponseDto> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm);
+
+    List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId);
+
+    List<StoreWithInventoryDto> searchStoresUsingStoreName(String storeName);
 
 
 

@@ -10,10 +10,10 @@ import java.util.List;
 public interface IProductService {
     ProductResponseDto createProduct(CreateProductRequestDto dto);
     ProductResponseDto updateProduct(Long productId, UpdateProductRequestDto dto);
-    void deleteProduct(Long productId);
-    ProductResponseDto getProductById(Long productId);
+    void deleteProductUsingProductId(Long productId);
+    ProductResponseDto getProductUsingProductId(Long productId);
     List<ProductResponseDto> getProductByCategory(String category);
     List<ProductResponseDto> getAllProducts();
-    List<ProductResponseDto> searchProductsByName(String name);
+    List<ProductResponseDto> searchProductsByProductName(String name);
     List<ProductResponseDto> filterProductsByPriceRange(BigDecimal min, BigDecimal max);
 }
