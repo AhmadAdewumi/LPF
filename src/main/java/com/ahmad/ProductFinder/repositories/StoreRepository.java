@@ -210,7 +210,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
       s.city,
       s.state,
       s.country,
-      s.postal_code          AS postalCode,
+      s.postal_code,
       ts_rank(
         s.searchable,
         plainto_tsquery('english', :query)
