@@ -5,17 +5,23 @@ import com.ahmad.ProductFinder.dtos.request.UpdateUserRequestDto;
 import com.ahmad.ProductFinder.dtos.response.UserResponseDto;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.AlreadyExistsException;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
+import com.ahmad.ProductFinder.models.Role;
 import com.ahmad.ProductFinder.models.User;
+import com.ahmad.ProductFinder.repositories.RoleRepository;
 import com.ahmad.ProductFinder.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -24,10 +30,12 @@ import static java.lang.String.format;
 public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -43,7 +51,18 @@ public class UserService implements IUserService {
                     user.setPassword(passwordEncoder.encode(req.getPassword()));
                     user.setUsername(req.getUsername());
                     user.setEmail(req.getEmail());
-                    user.setRole(req.getRole());
+
+                    //THIS FOR ASSIGNING DEFAULT ROLE "USER" ON SIGN UP, CAN UPGRADE TO STORE_OWNER ON STORE CREATION
+                  /*  Role customerRole = roleRepository.findByName("USER")
+                            .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+                    user.setRoles(Set.of(customerRole));*/
+
+                    Set<Role> rolesFromDb = req.getRole().stream().map(roleName ->
+                        roleRepository.findByName(roleName)
+                                .orElseThrow(()-> new ResourceNotFoundException(format("Role with name(s),%s , not found!",roleName)))
+                    ).collect(Collectors.toSet());
+//                    user.setRoles(role);
+                    user.setRoles(rolesFromDb);
                     user.setPhoneNumber(req.getPhoneNumber());
                     user.setCreatedAt(LocalDateTime.now());
                     userRepository.save(user);
@@ -55,6 +74,8 @@ public class UserService implements IUserService {
                     return new AlreadyExistsException(format("User with email,%s ,or username,%s , already exist!", request.getEmail(), request.getUsername()));
                 });
     }
+
+
 
     @Override
     public UserResponseDto updateUser(UpdateUserRequestDto request, Long userId) {
@@ -119,6 +140,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponseDto> getAllUsers() {
         log.info("In get all users service method");
         log.info("Fetching all active users");

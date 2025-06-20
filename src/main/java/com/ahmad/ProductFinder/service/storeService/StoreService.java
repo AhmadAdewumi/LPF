@@ -9,10 +9,12 @@ import com.ahmad.ProductFinder.embedded.Address;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.AlreadyExistsException;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.IllegalArgumentException;
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
+import com.ahmad.ProductFinder.models.Role;
 import com.ahmad.ProductFinder.models.Store;
 import com.ahmad.ProductFinder.models.User;
 import com.ahmad.ProductFinder.projection.StoreProjection;
 import com.ahmad.ProductFinder.repositories.ProductRepository;
+import com.ahmad.ProductFinder.repositories.RoleRepository;
 import com.ahmad.ProductFinder.repositories.StoreRepository;
 import com.ahmad.ProductFinder.repositories.UserRepository;
 import com.ahmad.ProductFinder.service.userService.UserService;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -38,25 +42,24 @@ public class StoreService implements IStoreService {
     private final StoreRepository storeRepository;
     private final UserService userService;
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
-    private final StoreQueryService queryService;
     private final StoreMapper storeMapper;
     private final StoreQueryService storeQueryService;
+    private final RoleRepository roleRepository;
 
-    public StoreService(GeometryFactory geometryFactory, StoreRepository storeRepository, UserService userService, UserRepository userRepository, ProductRepository productRepository, StoreQueryService queryService, StoreMapper storeMapper, StoreQueryService storeQueryService) {
+    public StoreService(GeometryFactory geometryFactory, StoreRepository storeRepository, UserService userService, UserRepository userRepository, StoreMapper storeMapper, StoreQueryService storeQueryService, RoleRepository roleRepository) {
         this.geometryFactory = geometryFactory;
         this.storeRepository = storeRepository;
         this.userService = userService;
         this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.queryService = queryService;
         this.storeMapper = storeMapper;
         this.storeQueryService = storeQueryService;
+        this.roleRepository = roleRepository;
     }
 
     //User clicks map in the FE , FE gets coordinates that is lat and long send to BE ,
     //i convert it to point using geometry factory which gets processed using postGIS
     @Override
+    @PreAuthorize("hasAnyRole('USER','STORE_OWNER','ADMIN')")
     public StoreResponseDto createStore(CreateStoreRequestDto request) {
         log.info("In create store service method");//ON HOLD TILL SECURITY SET UP COZ OF OWNER ID
         log.info("Attempting to create a store for request: {}", request);
@@ -75,7 +78,7 @@ public class StoreService implements IStoreService {
         Long ownerId = owner.getId();
         Double latitude = request.latitude();
         Double longitude = request.longitude();
-        if (storeRepository.storeExistsAtLocation(ownerId,latitude,longitude)){
+        if (storeRepository.storeExistsAtLocation(ownerId, latitude, longitude)) {
             log.error("Duplicate store creation attempt at location: lat={}, long={} by userId={}", latitude, longitude, ownerId);
             throw new AlreadyExistsException("Duplicate entry detected!, You already have a store at this location, consider updating your product list in your current store!");
         }
@@ -85,15 +88,29 @@ public class StoreService implements IStoreService {
                 .map(req -> {
                     Store store = buildStore(request);
                     store.setOwner(owner);
-
+                    //validate user doesn't have store_owner role and add store_owner to user's role
+                    validateRoleAndAddStoreOwnerRole(owner);
                     storeRepository.save(store);
                     log.info("Store created successfully with name: {}", store.getName());
-
                     return StoreResponseDto.from(store);
                 }).orElseThrow(() -> {
                     log.error("User with username {} not found in authenticated check", request.username());
                     return new ResourceNotFoundException(format("User with username,%s , Not Found! , Please signUp and try again", request.username()));
                 });
+    }
+
+    private void validateRoleAndAddStoreOwnerRole(User user) {
+        final String STORE_OWNER_ROLE = "STORE_OWNER";
+        boolean alreadyHasRole = user.getRoles().stream().noneMatch(role-> Objects.equals(role.getName(), STORE_OWNER_ROLE));
+        if (!alreadyHasRole) {
+            Role store_owner = roleRepository.findByName("STORE_OWNER").orElseThrow(() -> new ResourceNotFoundException("Role not found: " + STORE_OWNER_ROLE));
+            log.info("Role {} added for user: {}",STORE_OWNER_ROLE,user.getUsername());
+            user.getRoles().add(store_owner);
+            userRepository.save(user); // persist new role
+        }else {
+            log.info("User {} already has role: {}", user.getUsername(), STORE_OWNER_ROLE);
+        }
+
     }
 
     // X -> longitude , Y -> latitude from Point from GeometryFactory
@@ -128,6 +145,7 @@ public class StoreService implements IStoreService {
     }
 
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public StoreResponseDto updateStore(Long storeId, UpdateStoreRequestDto dto) {
         log.info("In update store service method");
         log.info("Updating store with ID: {}", storeId);
@@ -161,6 +179,7 @@ public class StoreService implements IStoreService {
     }
 
     @Override
+    @PreAuthorize("hasAnyRole('STORE_OWNER','ADMIN')")
     public void deleteStore(Long storeId) {
         log.info("In delete store for real service method");
         log.info("Attempting to permanently delete store with ID: {}", storeId);
@@ -200,7 +219,7 @@ public class StoreService implements IStoreService {
 
         store.setActive(true);
         storeRepository.save(store);
-        log.info("User with ID: {} restored successfully!",storeId);
+        log.info("User with ID: {} restored successfully!", storeId);
         return StoreResponseDto.from(store);
     }
 
@@ -258,7 +277,7 @@ public class StoreService implements IStoreService {
         log.info("search store by name service method invoked");
         log.info("Searching for stores with name containing: {}", storeName);
 
-        if (storeName==null || storeName.trim().length()<3){
+        if (storeName == null || storeName.trim().length() < 3) {
             throw new IllegalArgumentException("Search term must be at least 3 characters");
         }
 
@@ -281,7 +300,7 @@ public class StoreService implements IStoreService {
         log.info("Searching for nearby stores with product '{}' within {} km", productName, radiusInKm);
 
         double radiusInMetres = convertKmToMetres(radiusInKm);
-        List<StoreProjection> results = storeQueryService.searchNearbyStoresWithProductName(latitude,longitude,radiusInMetres,productName);
+        List<StoreProjection> results = storeQueryService.searchNearbyStoresWithProductName(latitude, longitude, radiusInMetres, productName);
 
         if (results.isEmpty()) {
             log.warn("No nearby stores found with product: {}", productName);
@@ -292,11 +311,11 @@ public class StoreService implements IStoreService {
     }
 
     @Override
-    public List<NearbyStoreResponseDto> searchByFullTextSearch(String query){
+    public List<NearbyStoreResponseDto> searchByFullTextSearch(String query) {
         log.info("Searching for nearby stores using query: {}", query);
         List<StoreProjection> results = storeQueryService.fullTextSearch(query);
 
-        if (results.isEmpty()){
+        if (results.isEmpty()) {
             log.warn("No search matching: {}", query);
             throw new ResourceNotFoundException("No stores matching: " + query);
         }
@@ -305,12 +324,12 @@ public class StoreService implements IStoreService {
     }
 
     @Override
-    public List<NearbyStoreResponseDto> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm){
+    public List<NearbyStoreResponseDto> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm) {
         log.info("Initiating nearby store search with FTS. Query: '{}', Latitude: {}, Longitude: {}, Distance (km): {}",
                 query, lat, lon, radiusInKm);
         double radiusInMetres = convertKmToMetres(radiusInKm);
-        List<StoreProjection> results = storeQueryService.searchNearbyWithByFullTextSearchAndProductInStock(query,lat,lon,radiusInMetres);
-        if (results.isEmpty()){
+        List<StoreProjection> results = storeQueryService.searchNearbyWithByFullTextSearchAndProductInStock(query, lat, lon, radiusInMetres);
+        if (results.isEmpty()) {
             log.warn("No search for nearby stores using FTS matching: {}", query);
             throw new ResourceNotFoundException("No Nearby stores matching: " + query);
         }
@@ -323,7 +342,7 @@ public class StoreService implements IStoreService {
         log.info("Searching for nearby stores with product ID: {} within {} km", productId, radiusInKm);
 
         double radiusInMetres = convertKmToMetres(radiusInKm);
-        List<StoreProjection> results = storeQueryService.searchNearbyStoresWithProductId(latitude,longitude,radiusInMetres,productId);
+        List<StoreProjection> results = storeQueryService.searchNearbyStoresWithProductId(latitude, longitude, radiusInMetres, productId);
 
         if (results.isEmpty()) {
             log.warn("No nearby stores found within {} km that have product ID {}", radiusInKm, productId);
@@ -333,8 +352,8 @@ public class StoreService implements IStoreService {
         return storeMapper.toNearbyStoreDtos(results);
     }
 
-    private double convertKmToMetres(double km){
-        return km*1000;
+    private double convertKmToMetres(double km) {
+        return km * 1000;
     }
 
 }
