@@ -8,6 +8,7 @@ import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFou
 import com.ahmad.ProductFinder.models.Product;
 import com.ahmad.ProductFinder.repositories.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public ProductResponseDto createProduct(CreateProductRequestDto dto) {
         log.info("createProduct service method invoked");
 
@@ -42,6 +44,7 @@ public class ProductService implements IProductService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public ProductResponseDto updateProduct(Long productId, UpdateProductRequestDto request) {
         log.info("updateProduct service method invoked for ID: {}", productId);
 
@@ -65,6 +68,7 @@ public class ProductService implements IProductService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public void deleteProductUsingProductId(Long productId) {
         log.info("deleteProduct service method invoked for ID: {}", productId);
 

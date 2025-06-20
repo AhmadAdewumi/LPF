@@ -27,8 +27,8 @@ public class LPFUserDetails implements UserDetails {
     }
 
     public static LPFUserDetails buildUserDetails(User user) {
-        Collection<SimpleGrantedAuthority> authorities = user.getRole().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+        Collection<SimpleGrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName()))
                 .collect(Collectors.toSet());
 
         return new LPFUserDetails(

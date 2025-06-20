@@ -14,6 +14,7 @@ import com.ahmad.ProductFinder.repositories.InventoryRepository;
 import com.ahmad.ProductFinder.repositories.ProductRepository;
 import com.ahmad.ProductFinder.repositories.StoreRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -36,36 +37,43 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public Inventory createInventory(CreateInventoryRequestDto inventoryRequest) {
         log.info("createInventory() invoked | storeId={}, productId={}", inventoryRequest.getStoreId(), inventoryRequest.getProductId());
         Long storeId = inventoryRequest.getStoreId();
         Long productId = inventoryRequest.getProductId();
 
-//        boolean productExists = productRepository.existsById(productId);
-//        boolean storeExists = storeRepository.existsById(storeId);
+        inventoryExists(productId,storeId);
+        Store store = retrieveStore(storeId);
+        Product product = retrieveProduct(productId);
+        Inventory inventory = buildInventory(inventoryRequest, store, product);
+        Inventory saved = inventoryRepository.save(inventory);
+        log.info("Inventory created successfully | inventoryId={}", saved.getId());
+        return saved;
+    }
 
+    private void inventoryExists(Long productId,Long storeId){
         boolean inventoryExists = inventoryRepository.existsByStoreIdAndProductId(storeId, productId);
         if (inventoryExists) {
             log.warn("Inventory already exists | storeId={}, productId={}", storeId, productId);
             throw new AlreadyExistsException("Duplicate entry detected , consider updating the resource");
         }
+    }
 
-        Store store = storeRepository.findById(storeId)
+    private Store retrieveStore(Long storeId){
+        return storeRepository.findById(storeId)
                 .orElseThrow(() -> {
                     log.error("Store not found | storeId={}", storeId);
                     return new ResourceNotFoundException("Store with ID : " + storeId + " not found");
                 });
+    }
 
-        Product product = productRepository.findById(productId)
+    private Product retrieveProduct(Long productId){
+        return productRepository.findById(productId)
                 .orElseThrow(() -> {
                     log.error("Product not found | productId={}", productId);
                     return new ResourceNotFoundException("Product with ID : " + productId + " not found");
                 });
-
-        var inventory = buildInventory(inventoryRequest, store, product);
-        Inventory saved = inventoryRepository.save(inventory);
-        log.info("Inventory created successfully | inventoryId={}", saved.getId());
-        return saved;
     }
 
     private Inventory buildInventory(CreateInventoryRequestDto dto, Store store, Product product) {
@@ -82,6 +90,7 @@ public class InventoryService implements IInventoryService {
 
     //SOFT DELETE IMPL maybe later
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public void deleteInventoryByInventoryId(Long inventoryId) {
         log.info("deleteInventoryById() invoked | inventoryId={}", inventoryId);
         inventoryRepository.findById(inventoryId)
@@ -94,6 +103,7 @@ public class InventoryService implements IInventoryService {
     }
 
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public Inventory updateInventoryByInventoryId(Long inventoryId, UpdateInventoryRequestDto dto) {
         log.info("updateInventory() invoked | inventoryId={}, price={}, quantity={}, isActive={}",
                 inventoryId, dto.getPrice(), dto.getStockQuantity(), dto.getIsActive());
