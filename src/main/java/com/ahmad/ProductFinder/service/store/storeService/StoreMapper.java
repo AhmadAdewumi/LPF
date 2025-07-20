@@ -1,8 +1,10 @@
-package com.ahmad.ProductFinder.service.storeService;
+package com.ahmad.ProductFinder.service.store.storeService;
 
 import com.ahmad.ProductFinder.dtos.entityDto.AddressDto;
 import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
+import com.ahmad.ProductFinder.dtos.response.PagedResponseDto;
 import com.ahmad.ProductFinder.projection.StoreProjection;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,6 +19,22 @@ public class StoreMapper {
                 .toList();
     }
 
+    public PagedResponseDto<NearbyStoreResponseDto> toPagedResponseDto(Page<StoreProjection> page){
+        List<NearbyStoreResponseDto> content = page.getContent()
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+
+        return PagedResponseDto.<NearbyStoreResponseDto>builder()
+                .content(content)
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .isLast(page.isLast())
+                .build();
+    }
+
 
     private NearbyStoreResponseDto mapToDto(StoreProjection storeProjection){
         return new NearbyStoreResponseDto(
@@ -28,7 +46,8 @@ public class StoreMapper {
                 storeProjection.getLongitude(),
                 true,
                 true,
-                storeProjection.getDistance_in_metres()
+                storeProjection.getDistance_in_metres(),
+                storeProjection.getTags()
         );
     }
 }

@@ -3,12 +3,15 @@ package com.ahmad.ProductFinder.repositories;
 import com.ahmad.ProductFinder.models.Store;
 import com.ahmad.ProductFinder.projection.StoreProjection;
 import org.locationtech.jts.geom.Point;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,8 +23,27 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     Optional<Store> findByIdAndIsActiveTrue(Long storeId);
 
-    List<Store> findByIsActiveTrue();
+    Page<Store> findByIsActiveTrue(Pageable pageable);
 
+    @Query(value = """
+            SELECT DISTINCT s.*
+            FROM store s
+            JOIN store_tag st ON s.id = st.store_id
+            JOIN tag t ON t.id = st.tag_id
+            WHERE LOWER(t.name) IN (:tagNames)
+            """, nativeQuery = true)
+    Page<Store> findStoresWithAnyTags(Collection<String> tagNames, Pageable pageable);
+
+    @Query(value = """
+            SELECT s.*
+            FROM store s
+            JOIN store_tag st ON s.id = st.store_id
+            JOIN tag t ON t.id = st.tag_id
+            WHERE LOWER(t.name) IN (:tagNames)
+            GROUP BY s.id
+            HAVING COUNT(DISTINCT t.id) = :tagCount
+            """, nativeQuery = true)
+    Page<Store> findStoresWithAllTags(Collection<String> tagNames, int tagCount, Pageable pageable);
 
     @Query(value = """
             SELECT EXISTS (
@@ -54,20 +76,25 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
                 ST_Distance(
                             s.location::geography,
                             ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
-                ) AS distance_in_metres
+                ) AS distance_in_metres,
+                array_agg(t.name) AS tags
             FROM store s
+            LEFT JOIN store_tag st ON s.id = st.store_id
+            LEFT JOIN tag t ON st.tag_id = t.id
             WHERE s.is_active = true
                 AND ST_DWithin(
                                 s.location::geography,
                                 ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
                                 :radius
                 )
+            GROUP BY s.id
             ORDER BY  distance_in_metres ASC
             """, nativeQuery = true)
-    Optional<List<StoreProjection>> getNearbyStores(
+    Page<StoreProjection> getNearbyStores(
             @Param("lat") double latitude,
             @Param("lon") double longitude,
-            @Param("radius") double radiusInMetres
+            @Param("radius") double radiusInMetres,
+            Pageable pageable
     );              //user can specify the range
 
     /* The user searches the storr by name I am retrieving lat and lon from the store entity also
@@ -87,9 +114,9 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 //            """
 //    )
     @Query(value = """
-            SELECT DISTINCT s 
+            SELECT DISTINCT s
             FROM Store s
-            WHERE s.isActive=true 
+            WHERE s.isActive=true
             AND LOWER(s.name) LIKE LOWER(CONCAT(:storeName,'%') )
             """
     )
@@ -129,11 +156,12 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             ORDER BY distance_in_metres ASC
             """,
             nativeQuery = true)
-    Optional<List<StoreProjection>> searchNearbyStoresWithProductName(
+    Page<StoreProjection> searchNearbyStoresWithProductName(
             @Param("lat") double latitude,
             @Param("lon") double longitude,
             @Param("productName") String productName,
-            @Param("radiusInMetres") double radiusInMetres
+            @Param("radiusInMetres") double radiusInMetres,
+            Pageable pageable
     );
 
 
@@ -174,31 +202,67 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     );
 
     @Query(value = """
-    SELECT
-      s.id                AS id,
-      s.name              AS name,
-      s.street            AS street,
-      s.city              AS city,
-      s.state             AS state,
-      s.country           AS country,
-      s.postal_code       AS postalCode,
-      s.description       AS description,
-      s.latitude          AS latitude,
-      s.longitude         AS longitude
-      ts_rank(
-        s.searchable,
-        plainto_tsquery('english', :query)
-      )                   AS rank
-    FROM store s
-    WHERE s.is_active
-      AND s.searchable @@ plainto_tsquery('english', :query)
-    ORDER BY rank DESC
-    LIMIT 10
-    """,
+            SELECT
+              s.id                AS id,
+              s.name              AS name,
+              s.street            AS street,
+              s.city              AS city,
+              s.state             AS state,
+              s.country           AS country,
+              s.postal_code       AS postalCode,
+              s.description       AS description,
+              s.latitude          AS latitude,
+              s.longitude         AS longitude
+              ts_rank(
+                s.searchable,
+                plainto_tsquery('english', :query)
+              )                   AS rank
+            FROM store s
+            WHERE s.is_active
+              AND s.searchable @@ plainto_tsquery('english', :query)
+            ORDER BY rank DESC
+            LIMIT 10
+            """,
             nativeQuery = true)
     List<StoreProjection> searchByText(@Param("query") String query);
 
     @Query(value = """
+            SELECT
+              s.id,
+              s.name,
+              s.description,
+              s.is_active            AS isActive,
+              s.latitude,
+              s.longitude,
+              s.street,
+              s.city,
+              s.state,
+              s.country,
+              s.postal_code,
+              ts_rank(
+                s.searchable,
+                plainto_tsquery('english', :query)
+              )                       AS textRank,
+              ST_Distance(
+                s.location::geography,
+                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
+              )                       AS distance_in_metres
+            FROM store s
+            JOIN inventory i ON i.store_id = s.id
+            JOIN product p ON p.id = i.product_id
+            WHERE s.is_active
+              AND i.is_active
+              AND i.stock_quantity > 0
+              AND s.searchable @@ plainto_tsquery('english', :query)
+              AND ST_DWithin(
+                    s.location::geography,
+                    ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+                    :distance
+              )
+            ORDER BY textRank DESC, distance_in_metres ASC
+            LIMIT 10
+            """,
+
     SELECT
       s.id,
       s.name,
@@ -236,12 +300,10 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     """,
             nativeQuery = true)
     List<StoreProjection> searchNearbyStoresByFullTextSearchAndProductInStock(
-            @Param("query")  String query,
-            @Param("lat")    double latitude,
-            @Param("lon")    double longitude,
+            @Param("query") String query,
+            @Param("lat") double latitude,
+            @Param("lon") double longitude,
             @Param("distance") double distanceInMetres
     );
 
 }
-
-

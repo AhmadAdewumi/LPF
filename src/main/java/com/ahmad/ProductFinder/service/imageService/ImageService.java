@@ -11,6 +11,7 @@ import com.ahmad.ProductFinder.repositories.ImageRepository;
 import com.ahmad.ProductFinder.repositories.ProductRepository;
 import com.ahmad.ProductFinder.service.cloudinaryService.CloudinaryService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ public class ImageService implements IImageService {
     }
 
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public String uploadImageToCloudinary(Long productId, MultipartFile file, String altText) {
         log.info("Uploading image for Product ID: {}, FileName: {}", productId, file.getOriginalFilename());
         String folderName="product-finder";
@@ -62,6 +64,7 @@ public class ImageService implements IImageService {
 
     @Transactional
     @Override
+    @PreAuthorize("hasRole('STORE_OWNER')")
     public void deleteImageUsingPublicId(String publicId) {
         log.info("Deleting image from Cloudinary and database. Public ID: {}", publicId);
         Image image = imageRepository.findByPublicId(publicId).orElseThrow(()-> new ResourceNotFoundException("Image not found!"));

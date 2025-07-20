@@ -2,6 +2,10 @@ package com.ahmad.ProductFinder.dtos.response;
 
 import com.ahmad.ProductFinder.dtos.entityDto.AddressDto;
 import com.ahmad.ProductFinder.models.Store;
+import com.ahmad.ProductFinder.models.Tag;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record NearbyStoreResponseDto(
         Long id,
@@ -12,7 +16,8 @@ public record NearbyStoreResponseDto(
         double longitude,
         boolean isVerified,
         boolean isActive,
-        Double distanceInMetres
+        Double distanceInMetres,
+        Set<String> tags
 
 ) {
     public static NearbyStoreResponseDto from(Store store,Double distanceInMetres){
@@ -29,7 +34,8 @@ public record NearbyStoreResponseDto(
                 store.getLongitude(),
                 true,
                 true,
-                distanceInMetres
+                distanceInMetres,
+                store.getTags().stream().map(Tag::getName).collect(Collectors.toSet())
         );
 
     }

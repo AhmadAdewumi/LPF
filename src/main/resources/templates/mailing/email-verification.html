@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Hello <strong th:text="${firstName}">User</strong>,</p>
+
+    <p>Thank you for registering with us! , you are just one click away from experiencing the magic of our product finder application, Please verify your email by clicking the button below:</p>
+
+    <p>
+        <a class="button" th:href="${verificationURL}">Verify Email</a>
+    </p>
+
+    <p class="footer">
+        If you didn’t request this, you can safely ignore this email.<br>
+        This verification link is valid for a limited time.
+    </p>
+</div>
+</body>
+</html>

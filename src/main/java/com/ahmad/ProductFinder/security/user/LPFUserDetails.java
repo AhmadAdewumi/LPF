@@ -12,29 +12,39 @@ import java.util.stream.Collectors;
 
 @Getter
 public class LPFUserDetails implements UserDetails {
+    private final User user;
     private final Long id;
     private final String username;
     @JsonIgnore
     private final String password;
+    private final boolean accountVerified;
 
     private Collection<SimpleGrantedAuthority> authorities;
 
-    public LPFUserDetails(Long id, String username, String password, Collection<SimpleGrantedAuthority> authorities) {
+    public LPFUserDetails(User user, Long id, String username, String password, boolean accountVerified, Collection<SimpleGrantedAuthority> authorities) {
+        this.user = user;
         this.id = id;
         this.username = username;
         this.password = password;
+        this.accountVerified = accountVerified;
         this.authorities = authorities;
     }
 
+//    public LPFUserDetails(User user){
+//        this.user = user;
+//    }
+
     public static LPFUserDetails buildUserDetails(User user) {
-        Collection<SimpleGrantedAuthority> authorities = user.getRole().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+        Collection<SimpleGrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName()))
                 .collect(Collectors.toSet());
 
         return new LPFUserDetails(
+                user,
                 user.getId(),
                 user.getUsername(),
                 user.getPassword(),
+                user.isAccountVerified(),
                 authorities
         );
     }
@@ -72,6 +82,6 @@ public class LPFUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return this.accountVerified;
     }
 }

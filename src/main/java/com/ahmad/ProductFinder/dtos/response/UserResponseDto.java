@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -17,16 +19,17 @@ public class UserResponseDto {
     private String email;
     private String password;
     private String phoneNumber;
-    private Collection<Role> role;
+    private List<String> role;
 
-    public static UserResponseDto from(User user){
+
+    public static UserResponseDto from(User user) {
         return new UserResponseDto(
                 user.getFirstName(),
                 user.getLastname(),
                 user.getEmail(),
                 user.getPassword(),
                 user.getPhoneNumber(),
-                user.getRole()
+                user.getRoles().stream().map(userRole -> userRole.getName()).collect(Collectors.toList())
         );
     }
 }

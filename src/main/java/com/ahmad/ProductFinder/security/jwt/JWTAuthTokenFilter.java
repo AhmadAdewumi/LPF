@@ -43,7 +43,7 @@ public class JWTAuthTokenFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwtToken)) {
                 jwtUtils.validateToken(jwtToken);
 
-                String username = jwtUtils.extractUsername(jwtToken);
+                String username = jwtUtils.extractUsernameFromToken(jwtToken);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -57,7 +57,7 @@ public class JWTAuthTokenFilter extends OncePerRequestFilter {
             response.getWriter().write("Invalid or Expired JWT: " + e.getMessage());
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Error occured while processing JWT: " + e.getMessage());
+            response.getWriter().write("Error occurred while processing JWT: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);

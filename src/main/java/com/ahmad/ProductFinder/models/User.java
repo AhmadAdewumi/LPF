@@ -8,9 +8,11 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.domain.Auditable;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,11 +23,11 @@ import java.util.Set;
 @Setter
 @Builder
 @Table(name = "users")
-public class User {
+public class User{
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 100)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+//    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 100)
     private Long id;
 
     @NotNull(message = "email cannot be empty")
@@ -45,16 +47,19 @@ public class User {
     @JsonIgnore
     private String password;
 
+    private boolean accountVerified;  // to check if account is validated by email
+    private boolean loginDisabled;   // disable login when user tries to log_in many times
+
     @Column(
             nullable = false ,
             unique = true // phone number is unique per user
     )
     private String phoneNumber;
 
-    @NotNull(message = "roles cannot be empty")
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    private Collection<Role> role = Set.of(Role.USER);
+//    @NotNull(message = "roles cannot be empty")
+//    @ElementCollection(fetch = FetchType.EAGER)
+//    @Enumerated(EnumType.STRING)
+//    private Collection<Roles> role = Set.of(Roles.USER);
 
     private boolean active = true; // useful for soft deletion
 
@@ -65,6 +70,16 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Store> store;
+
+    @ManyToMany(fetch = FetchType.EAGER , cascade = {CascadeType.DETACH , CascadeType.PERSIST , CascadeType.MERGE , CascadeType.REFRESH})
+    @JoinTable(name = "user_roles" , joinColumns = @JoinColumn(name = "user_id" , referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name ="role_id" , referencedColumnName = "id")
+    )
+    @JsonIgnore
+    private Collection<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<SecureToken> tokens;
 }
