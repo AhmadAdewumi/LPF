@@ -226,7 +226,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             nativeQuery = true)
     List<StoreProjection> searchByText(@Param("query") String query);
 
-    @Query(value = """
+@Query(value = """
             SELECT
               s.id,
               s.name,
@@ -262,42 +262,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
             ORDER BY textRank DESC, distance_in_metres ASC
             LIMIT 10
             """,
-
-    SELECT
-      s.id,
-      s.name,
-      s.description,
-      s.is_active            AS isActive,
-      s.latitude,
-      s.longitude,
-      s.street,
-      s.city,
-      s.state,
-      s.country,
-      s.postal_code,
-      ts_rank(
-        s.searchable,
-        plainto_tsquery('english', :query)
-      )                       AS textRank,
-      ST_Distance(
-        s.location::geography,
-        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography
-      )                       AS distance_in_metres
-    FROM store s
-    JOIN inventory i ON i.store_id = s.id
-    JOIN product p ON p.id = i.product_id
-    WHERE s.is_active
-      AND i.is_active
-      AND i.stock_quantity > 0
-      AND s.searchable @@ plainto_tsquery('english', :query)
-      AND ST_DWithin(
-            s.location::geography,
-            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
-            :distance
-      )
-    ORDER BY textRank DESC, distance_in_metres ASC
-    LIMIT 10
-    """,
             nativeQuery = true)
     List<StoreProjection> searchNearbyStoresByFullTextSearchAndProductInStock(
             @Param("query") String query,
