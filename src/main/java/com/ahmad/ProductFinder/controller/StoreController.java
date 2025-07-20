@@ -1,12 +1,12 @@
 package com.ahmad.ProductFinder.controller;
 
 import com.ahmad.ProductFinder.dtos.request.CreateStoreRequestDto;
+import com.ahmad.ProductFinder.dtos.request.NearbyStoreSearchParams;
 import com.ahmad.ProductFinder.dtos.request.UpdateStoreRequestDto;
-import com.ahmad.ProductFinder.dtos.response.ApiResponseBody;
-import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
-import com.ahmad.ProductFinder.dtos.response.StoreResponseDto;
-import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
-import com.ahmad.ProductFinder.service.storeService.IStoreService;
+import com.ahmad.ProductFinder.dtos.response.*;
+import com.ahmad.ProductFinder.service.store.nearbyStoreService.INearbyStoreService;
+import com.ahmad.ProductFinder.service.store.nearbyStoreService.NearbyStoreService;
+import com.ahmad.ProductFinder.service.store.storeService.IStoreService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,9 +30,11 @@ import static java.lang.String.format;
 @Tag(name = "Store Management", description = "APIs for creating, updating, retrieving, deleting, and searching stores, including location-based searches and product availability.")
 public class StoreController {
     private final IStoreService storeService;
+    private final INearbyStoreService nearbyStoreService;
 
-    public StoreController(IStoreService storeService) {
+    public StoreController(IStoreService storeService, INearbyStoreService nearbyStoreService) {
         this.storeService = storeService;
+        this.nearbyStoreService = nearbyStoreService;
     }
 
     @Operation(
@@ -210,13 +212,19 @@ public class StoreController {
             }
     )
     @GetMapping("/all")
-    public ResponseEntity<ApiResponseBody> getAllStores() {
-        log.info("Fetching all stores");
-        List<StoreResponseDto> stores = storeService.getAllStores();
-        log.info("Fetched {} store(s)", stores.size());
+    public ResponseEntity<ApiResponseBody> getAllStores(@RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "10") int size,
+                                                        @RequestParam(defaultValue = "name") String sortBy,
+                                                        @RequestParam(defaultValue = "asc") String sortDirection) {
+        log.info("Fetching all stores - Page: {}, Size: {}, SortBy: {}, Direction: {}", page, size, sortBy, sortDirection);
+
+        PagedResponseDto<StoreResponseDto> stores = storeService.getAllStores(page, size, sortBy, sortDirection);
+
+        log.info("Fetched {} store(s) for page {}", stores.getContent().size(), page);
         return ResponseEntity
-                .ok(new ApiResponseBody("All stores retrieved successfully !", stores));
+                .ok(new ApiResponseBody("All stores retrieved successfully!", stores));
     }
+
 
     @Operation(
             summary = "Get store by ID",
@@ -253,11 +261,11 @@ public class StoreController {
     @Operation(
             summary = "Find nearby stores by geographical coordinates",
             description = "Retrieves a list of stores located within a specified radius (in kilometers) of given latitude and longitude coordinates.",
-            parameters = {
-                    @Parameter(name = "latitude", description = "the user's current latitude", required = true, example = "34.0522"),
-                    @Parameter(name = "longitude", description = "thr user's current longitude", required = true, example = "-118.2437"),
-                    @Parameter(name = "radiusInKm", description = "Search radius in kilometers", required = true, example = "5.0")
-            },
+//            parameters = {
+//                    @Parameter(name = "latitude", description = "the user's current latitude", required = true, example = "34.0522"),
+//                    @Parameter(name = "longitude", description = "thr user's current longitude", required = true, example = "-118.2437"),
+//                    @Parameter(name = "radiusInKm", description = "Search radius in kilometers", required = true, example = "5.0")
+//            },
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -275,13 +283,11 @@ public class StoreController {
                     )
             }
     )
-    @GetMapping("/nearby")
-    public ResponseEntity<ApiResponseBody> findNearbyStores(@RequestParam double latitude,
-                                                            @RequestParam double longitude,
-                                                            @RequestParam double radiusInKm) {
-        log.info("Searching for nearby stores at lat: {}, long: {} within radius: {} km", latitude, longitude, radiusInKm);
-        List<NearbyStoreResponseDto> results = storeService.findNearbyStores(latitude, longitude, radiusInKm);
-        log.info("Found {} nearby store(s)", results.size());
+    @GetMapping(value = "/nearby")
+    public ResponseEntity<ApiResponseBody> findNearbyStores(@ModelAttribute NearbyStoreSearchParams params) {
+        log.info("Searching for nearby stores at lat: {}, long: {} within radius: {} km", params.getLatitude(), params.getLongitude(), params.getRadiusInKm());
+        PagedResponseDto<NearbyStoreResponseDto> results = nearbyStoreService.findNearbyStores(params);
+        log.info("Found {} nearby store(s)", results.getTotalElements());
         return ResponseEntity.ok(new ApiResponseBody("Nearby Stores Fetched Successfully ! ", results));
     }
 
@@ -344,17 +350,14 @@ public class StoreController {
             }
     )
     @GetMapping("/product/search")
-    public ResponseEntity<ApiResponseBody> findNearbyStoresWithProductName(@RequestParam double latitude,
-                                                                           @RequestParam double longitude,
-                                                                           @RequestParam double radiusInKm,
+    public ResponseEntity<ApiResponseBody> findNearbyStoresWithProductName(@ModelAttribute NearbyStoreSearchParams params,
                                                                            @RequestParam String productName) {
         log.info("""
                 Searching nearby stores with product name '{}' at lat: {}, long: {}, radius: {} km
                 """,
-                productName, latitude, longitude, radiusInKm);
-        List<NearbyStoreResponseDto> results = storeService
-                .findNearbyStoresWithProductName(latitude, longitude, radiusInKm, productName);
-        log.info("Found {} store(s) with product name '{}' nearby", results.size(), productName);
+                productName, params.getLatitude(), params.getLongitude(), params.getRadiusInKm());
+        PagedResponseDto<NearbyStoreResponseDto> results = nearbyStoreService.findNearbyStoresWithProductName(params, productName);
+        log.info("Found {} store(s) with product name '{}' nearby", results.getTotalElements(), productName);
         return ResponseEntity
                 .ok(new ApiResponseBody("Nearby Stores with product Name in stock fetched successfully", results));
     }
@@ -414,7 +417,7 @@ public class StoreController {
                                                                       @RequestParam double lat,
                                                                       @RequestParam double lon,
                                                                       @RequestParam double radiusKm ){
-        List<NearbyStoreResponseDto> results = storeService.searchNearbyWithByFullTextSearchAndProductInStock(query, lat, lon, radiusKm);
+        List<NearbyStoreResponseDto> results = nearbyStoreService.searchNearbyWithFullTextSearchAndProductInStock(query, lat, lon, radiusKm);
         return ResponseEntity
                 .ok(new ApiResponseBody("Search nearby stores using FTS results: ", results));
     }
@@ -456,8 +459,7 @@ public class StoreController {
                                                                          @PathVariable Long productId) {
         log.info("Searching nearby stores with productId: {} at lat: {}, long: {}, radius: {} km",
                 productId, latitude, longitude, radiusInKm);
-        List<NearbyStoreResponseDto> results = storeService
-                .findNearbyStoresByProductId(latitude, longitude, radiusInKm, productId);
+        List<NearbyStoreResponseDto> results = nearbyStoreService.findNearbyStoresByProductId(latitude, longitude, radiusInKm, productId);
         log.info("Found {} nearby store(s) with productId: {}", results.size(), productId);
         return ResponseEntity.ok(new ApiResponseBody(
                 format("Nearby Stores within range %.0f km With Product ID: %d fetched successfully !", radiusInKm, productId),
