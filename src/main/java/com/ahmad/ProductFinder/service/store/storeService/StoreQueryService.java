@@ -1,4 +1,4 @@
-    package com.ahmad.ProductFinder.service.storeService;
+    package com.ahmad.ProductFinder.service.store.storeService;
 
     import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
     import com.ahmad.ProductFinder.projection.StoreProjection;
