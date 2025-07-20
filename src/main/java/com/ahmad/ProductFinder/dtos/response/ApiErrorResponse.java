@@ -1,16 +1,18 @@
 package com.ahmad.ProductFinder.dtos.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ApiErrorResponse {
-    private final LocalDateTime timeStamp;
-    private final String message;
-    private final String path;
-    private final int statusCode;
-    private final String error;
+    private LocalDateTime timeStamp;
+    private String message;
+    private String path;
+    private int statusCode;
+    private String error;
 }

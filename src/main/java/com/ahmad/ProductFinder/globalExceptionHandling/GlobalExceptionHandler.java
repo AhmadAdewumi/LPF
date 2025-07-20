@@ -7,21 +7,22 @@ import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.IllegalArgumen
 import com.ahmad.ProductFinder.globalExceptionHandling.exceptions.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.security.access.AccessDeniedException;
-
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Hidden
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -81,16 +82,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponse> handleGenericException(Exception exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorResponse> handleGenericException(Exception exception, HttpServletRequest request, HttpServletResponse response) {
+        exception.printStackTrace();
         log.error("Unhandled exception: {}", exception.getMessage(), exception);
-        ApiErrorResponse response = ApiErrorResponse.builder()
+        if (response.isCommitted()){
+            return null;
+        }
+        ApiErrorResponse body = ApiErrorResponse.builder()
                 .timeStamp(LocalDateTime.now())
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .message("Something went wrong on the server")
                 .path(request.getRequestURI())
                 .build();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
     @ExceptionHandler(AccessDeniedException.class)

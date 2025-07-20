@@ -2,8 +2,10 @@ package com.ahmad.ProductFinder.dtos.response;
 
 import com.ahmad.ProductFinder.dtos.entityDto.AddressDto;
 import com.ahmad.ProductFinder.models.Store;
+import com.ahmad.ProductFinder.models.Tag;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record StoreResponseDto(
         Long id,
@@ -16,7 +18,8 @@ public record StoreResponseDto(
         boolean isActive,
         Long ownerId,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        List<String> tags
 )
 
 {
@@ -32,8 +35,8 @@ public record StoreResponseDto(
                 store.isActive(),
                 store.getOwner().getId(),
                 store.getCreatedAt(),
-                store.getUpdatedAt()
-
+                store.getUpdatedAt(),
+                store.getTags().stream().map(Tag::getName).toList()
         );
     }
 }

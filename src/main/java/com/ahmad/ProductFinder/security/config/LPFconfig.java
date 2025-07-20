@@ -62,12 +62,24 @@ public class LPFconfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            throw accessDeniedException;
+                        })
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/**","/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH,"/api/v1/store/**").hasAnyRole("ADMIN","STORE_OWNER")
-                        .requestMatchers(HttpMethod.DELETE,"/api/v1/store/**").hasAnyRole("ADMIN","STORE_OWNER")
-                        .requestMatchers(HttpMethod.DELETE,"/api/v1/user/**").hasAnyRole("ADMIN")
+                .authorizeHttpRequests(auth -> auth.requestMatchers(
+//                                "/**"
+                                "/api/v1/auth/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/api-docs/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/store/**").hasAnyRole("ADMIN", "STORE_OWNER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/store/**").hasAnyRole("ADMIN", "STORE_OWNER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/**").hasAnyRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
         http.authenticationProvider(daoAuthenticationProvider());

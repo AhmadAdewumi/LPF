@@ -1,107 +1,70 @@
 package com.ahmad.ProductFinder.controller;
 
+import com.ahmad.ProductFinder.controller.swaggerDocs.AuthDocs;
 import com.ahmad.ProductFinder.dtos.request.LoginRequest;
+import com.ahmad.ProductFinder.dtos.request.PasswordResetDto;
+import com.ahmad.ProductFinder.dtos.request.PasswordResetRequestDto;
+import com.ahmad.ProductFinder.dtos.request.RefreshTokenRequest;
 import com.ahmad.ProductFinder.dtos.response.ApiResponseBody;
 import com.ahmad.ProductFinder.dtos.response.JwtResponse;
-import com.ahmad.ProductFinder.security.jwt.JwtUtils;
-import com.ahmad.ProductFinder.security.user.LPFUserDetails;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import com.ahmad.ProductFinder.service.authService.AuthService;
+import com.ahmad.ProductFinder.service.secureTokenService.PasswordResetService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import static java.lang.String.format;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "User authentication operation using jwt.")
-public class AuthController {
-    private final JwtUtils jwtUtils;
-    private final AuthenticationManager authenticationManager;
+@RequiredArgsConstructor
+public class AuthController implements AuthDocs {
 
+    private final AuthService authService;
 
-    public AuthController(JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
-        this.jwtUtils = jwtUtils;
-        this.authenticationManager = authenticationManager;
-    }
+    private final PasswordResetService resetService;
 
-    @Operation(
-            summary = "User Login",
-            description = "Authenticates a user with provided credentials and returns a JWT token upon successful login. " +
-                    "This token should be used for subsequent authenticated requests.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "User credentials for login",
-                    required = true,
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = LoginRequest.class))
-            ),
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Login successful, JWT token returned.",
-                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ApiResponseBody.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized - Invalid username or password.",
-                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ApiResponseBody.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad Request - Invalid input data (e.g., validation errors for username/password).",
-                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ApiResponseBody.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal Server Error - Unexpected error during authentication or token generation.",
-                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ApiResponseBody.class))
-                    )
-            }
-    )
-    @PostMapping(value = "/login",consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponseBody> authenticate(@Valid @RequestBody LoginRequest request) {
         try {
-            log.info("Authentication attempt for username: {}", request.getUsername());
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            log.info("Authentication successful for username: {}", request.getUsername());
-            log.debug("Generating JWT token...");
-
-            System.out.println("generate token might crash , Bismillah");
-            String jwt = jwtUtils.generateTokenForUser(authentication);
-            System.out.println("Alhamdulillah, it didn't crash");
-
-            log.info("JWT token generated successfully for user: {}", request.getUsername());
-
-            LPFUserDetails userDetails = (LPFUserDetails) authentication.getPrincipal();
-            JwtResponse jwtResponse = new JwtResponse(userDetails.getId(), jwt);
-            log.info("Login response prepared for user ID: {}", userDetails.getId());
+            JwtResponse jwtResponse = authService.authenticate(request);
             return ResponseEntity.ok(new ApiResponseBody("Login Successful!", jwtResponse));
         } catch (AuthenticationException e) {
-            log.warn("Login failed for username: {} - Reason: {}", request.getUsername(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseBody("Login Failed! Please, Try Again! ", null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseBody("Login Failed! Please, Try Again!", null));
         }
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponseBody> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
+        JwtResponse response = authService.refreshAccessToken(request.getRefreshToken());
+        if (response == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponseBody("Invalid or expired refresh token.", null));
+        }
 
+        return ResponseEntity.ok(new ApiResponseBody("Access token refreshed successfully.", response));
+    }
 
+    @PostMapping("/request/password-reset")
+    public ResponseEntity<ApiResponseBody> requestPasswordReset(@RequestBody @Valid PasswordResetRequestDto request) {
+        log.info("Received request in controller to reset password for: {}", request.getEmail());
+        resetService.resetPasswordRequest(request);
+        return ResponseEntity.ok(new ApiResponseBody(format("Password reset request submitted successfully for user with mail, %s!", request.getEmail()), null));
+    }
+
+    @PatchMapping("/password-reset")
+    public ResponseEntity<ApiResponseBody> resetPassword(@RequestBody @Valid PasswordResetDto dto) {
+        resetService.resetPassword(dto);
+        return ResponseEntity.ok(new ApiResponseBody("Password reset successfully.", null));
+    }
 }
+

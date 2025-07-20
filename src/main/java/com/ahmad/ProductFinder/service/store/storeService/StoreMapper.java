@@ -1,4 +1,4 @@
-package com.ahmad.ProductFinder.service.storeService;
+package com.ahmad.ProductFinder.service.store.storeService;
 
 import com.ahmad.ProductFinder.dtos.entityDto.AddressDto;
 import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
@@ -46,7 +46,8 @@ public class StoreMapper {
                 storeProjection.getLongitude(),
                 true,
                 true,
-                storeProjection.getDistance_in_metres()
+                storeProjection.getDistance_in_metres(),
+                storeProjection.getTags()
         );
     }
 }

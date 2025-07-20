@@ -12,6 +12,7 @@ import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @AllArgsConstructor
@@ -34,6 +35,7 @@ public class Store {
     @Embedded
     private Address address;
 
+    @Column(length = 1000)
     private String description;
 
     @CreationTimestamp
@@ -62,8 +64,6 @@ public class Store {
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location; // 4326{spatial reference system identifier (SRID)
 
-
-
 //    @ManyToMany(fetch = FetchType.EAGER)
 //    @JoinTable(
 //            name = "stores_products",
@@ -76,4 +76,9 @@ public class Store {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Inventory> inventory = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.EAGER , cascade = {CascadeType.DETACH , CascadeType.PERSIST , CascadeType.MERGE , CascadeType.REFRESH})
+    @JoinTable(name = "store_tag", joinColumns = @JoinColumn(name = "store_id" , referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name ="tag_id" , referencedColumnName = "id")
+    )
+    private Collection<Tag> tags = new ArrayList<>();
 }

@@ -1,4 +1,4 @@
-package com.ahmad.ProductFinder.service.storeService;
+package com.ahmad.ProductFinder.service.store.storeService;
 
 import com.ahmad.ProductFinder.dtos.request.CreateStoreRequestDto;
 import com.ahmad.ProductFinder.dtos.request.NearbyStoreSearchParams;
@@ -7,7 +7,6 @@ import com.ahmad.ProductFinder.dtos.response.NearbyStoreResponseDto;
 import com.ahmad.ProductFinder.dtos.response.PagedResponseDto;
 import com.ahmad.ProductFinder.dtos.response.StoreResponseDto;
 import com.ahmad.ProductFinder.dtos.response.StoreWithInventoryDto;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -31,15 +30,15 @@ public interface IStoreService {
     PagedResponseDto<StoreResponseDto> getAllStores(int page, int size, String sortBy, String direction);
     // Returns stores within radius from (lat, long)
 
-    PagedResponseDto<NearbyStoreResponseDto> findNearbyStores(@ModelAttribute NearbyStoreSearchParams params);
-
-    PagedResponseDto<NearbyStoreResponseDto> findNearbyStoresWithProductName(NearbyStoreSearchParams params,String productName);
+//    PagedResponseDto<NearbyStoreResponseDto> findNearbyStores(@ModelAttribute NearbyStoreSearchParams params);
+//
+//    PagedResponseDto<NearbyStoreResponseDto> findNearbyStoresWithProductName(NearbyStoreSearchParams params,String productName);
 
     List<NearbyStoreResponseDto> searchByFullTextSearch(String query);
 
-    List<NearbyStoreResponseDto> searchNearbyWithByFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm);
+//    List<NearbyStoreResponseDto> searchNearbyWithFullTextSearchAndProductInStock(String query, double lat, double lon, double radiusInKm);
 
-    List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId);
+//    List<NearbyStoreResponseDto> findNearbyStoresByProductId(double latitude, double longitude, double radiusInKm, Long productId);
 
     List<StoreWithInventoryDto> searchStoresUsingStoreName(String storeName);
 
