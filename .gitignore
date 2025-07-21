@@ -33,6 +33,6 @@ build/
 .vscode/
 
 # Spring Boot Config Files
-application.properties
+#application.properties
 .env
 logs
