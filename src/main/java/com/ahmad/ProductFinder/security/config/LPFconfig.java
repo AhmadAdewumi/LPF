@@ -75,7 +75,8 @@ public class LPFconfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
-                                "/api-docs/**"
+                                "/api-docs/**",
+                                "/"
                         ).permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/store/**").hasAnyRole("ADMIN", "STORE_OWNER")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/store/**").hasAnyRole("ADMIN", "STORE_OWNER")
