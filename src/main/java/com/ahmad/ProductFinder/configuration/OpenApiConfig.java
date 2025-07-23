@@ -20,7 +20,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI defineOpenApi() {
         Server server = new Server();
-        server.setUrl("http://localhost:8080");
+        server.setUrl(url);
         server.setDescription("Development");
 
         Contact myContact = new Contact();
