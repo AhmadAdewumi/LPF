@@ -13,7 +13,7 @@ import lombok.Data;
 )
 public class ApiResponseBody {
 
-    @Schema(description = "A descriptive message indicating the outcome of the API operation", example = "Operation successful!")
+//    @Schema(description = "A descriptive message indicating the outcome of the API operation", example = "Operation successful!")
     private String message;
 
     @Schema(description = "The actual data payload of the response. This can be a single object, a list of objects, or null")
