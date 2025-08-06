@@ -2,7 +2,7 @@
 
 ## Overview
 
-ProductFinder is a robust backend application designed to connect users with physical stores nearby that stock specific products. It provides comprehensive tools for store owners to manage their inventory and product images, while offering users a powerful, location-aware search experience leveraging advanced full-text and geospatial capabilities. Built with modern Java and Spring Boot, it prioritizes clean architecture, security, and scalability.
+ProductFinder is a backend application designed to connect users with physical stores nearby that stock specific products. It provides tools for store owners to manage their inventory and product images, while offering users a powerful, location-aware search experience leveraging advanced full-text and geospatial capabilities. Built with Java and Spring Boot, it enforces clean architecture, security, and scalability.
 
 ## Features
 
@@ -50,7 +50,7 @@ The application follows a clean architecture approach to ensure modularity, test
 
 * **Services (`src/main/java/.../service`)**:
     * **Purpose:** Encapsulates the core business logic of the application.
-    * **Responsibility:** Orchestrates operations, applies business rules, interacts with repositories, and transforms entities to/from DTOs. Adheres to the Single Responsibility Principle (SRP) by breaking down complex operations into focused service components (e.g., `AuthService`, `StoreQueryService`, `StoreManagementService`, `ImageService`).
+    * **Responsibility:** applies business rules, interacts with repositories, and transforms entities to/from DTOs. Adheres to the Single Responsibility Principle (SRP) by breaking down complex operations into focused service components (e.g., `AuthService`, `StoreQueryService`, `StoreManagementService`, `ImageService`).
     * **Interactions:** Receives DTOs from controllers, interacts with repositories, and returns DTOs or domain objects.
 
 * **Repositories (`src/main/java/.../repository`)**:
@@ -91,8 +91,8 @@ Follow these steps to get the ProductFinder backend running on your local machin
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd productfinder-backend # Or whatever your project folder is named
+git clone <the-repository-url>
+cd productfinder-backend # Or the folder you cloned it into
 ```
 
 ### 2. Database Setup
