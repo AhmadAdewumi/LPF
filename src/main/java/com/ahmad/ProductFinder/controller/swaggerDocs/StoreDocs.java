@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Set;
 
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Stores", description = "Operations related to store management and discovery")
 public interface StoreDocs {
 
     @Operation(

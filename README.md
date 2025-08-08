@@ -93,6 +93,7 @@ Follow these steps to get the ProductFinder backend running on your local machin
 ```bash
 git clone <the-repository-url>
 cd productfinder-backend # Or the folder you cloned it into
+
 ```
 
 ### 2. Database Setup
