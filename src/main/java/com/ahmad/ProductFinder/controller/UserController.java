@@ -26,7 +26,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 @Tag(name = "User Management", description = "APIs for user registration, profile management, and retrieval.")
 public class UserController implements UserDocs {
     private final IUserService userService;

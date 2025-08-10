@@ -27,7 +27,7 @@ import static java.lang.String.format;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/store")
+@RequestMapping("/api/v1/stores")
 @Tag(name = "Store Management", description = "APIs for creating, updating, retrieving, deleting, and searching stores, including location-based searches and product availability.")
 public class StoreController implements StoreDocs {
     private final IStoreService storeService;
