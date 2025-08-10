@@ -20,7 +20,7 @@ import static java.lang.String.format;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/product")
+@RequestMapping("/api/v1/products")
 @Tag(name = "Product Management", description = "APIs for managing products")
 public class ProductController implements ProductDocs {
     private final IProductService productService;
