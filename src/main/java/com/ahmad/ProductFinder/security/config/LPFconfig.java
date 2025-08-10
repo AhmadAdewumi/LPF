@@ -93,11 +93,11 @@ public class LPFconfig {
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/api-docs/**",
-                                "/"
+                                "/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/store/**").hasAnyRole("ADMIN", "STORE_OWNER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/store/**").hasAnyRole("ADMIN", "STORE_OWNER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/**").hasAnyRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/stores/**").hasAnyRole("ADMIN", "STORE_OWNER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/stores/**").hasAnyRole("ADMIN", "STORE_OWNER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAnyRole("ADMIN")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
         http.authenticationProvider(daoAuthenticationProvider());
