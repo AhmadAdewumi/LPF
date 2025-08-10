@@ -1,28 +1,73 @@
-2025-08-02T00:20:41.032+01:00  INFO 56045 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Starting ProductFinderApplication using Java 21.0.7 with PID 56045 (/home/ahmad/JAVA PROJECTS/productFinder/ProductFinder/target/classes started by ahmad in /home/ahmad/JAVA PROJECTS/productFinder/ProductFinder)
-2025-08-02T00:20:41.034+01:00 DEBUG 56045 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Running with Spring Boot v3.4.5, Spring v6.2.6
-2025-08-02T00:20:41.035+01:00  INFO 56045 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : The following 1 profile is active: "dev"
-2025-08-02T00:20:43.232+01:00  WARN 56045 --- [ProductFinder] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-08-02T00:20:44.880+01:00 DEBUG 56045 --- [ProductFinder] [restartedMain] c.a.P.security.jwt.JWTAuthTokenFilter    : Filter 'authTokenFilter' configured for use
-2025-08-02T00:20:44.930+01:00  WARN 56045 --- [ProductFinder] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
-2025-08-02T00:20:45.910+01:00  WARN 56045 --- [ProductFinder] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-08-02T00:20:46.849+01:00  INFO 56045 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Started ProductFinderApplication in 6.19 seconds (process running for 6.787)
-2025-08-02T00:21:01.561+01:00  INFO 56045 --- [ProductFinder] [http-nio-8080-exec-9] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 419 ms
-2025-08-02T00:22:01.103+01:00  INFO 56045 --- [ProductFinder] [http-nio-8080-exec-10] c.a.P.service.authService.AuthService    : Authentication attempt for username: Adewumi
-2025-08-02T00:22:01.332+01:00  INFO 56045 --- [ProductFinder] [http-nio-8080-exec-10] c.a.P.service.authService.AuthService    : Authentication successful for username: Adewumi
-2025-08-02T00:22:01.333+01:00 DEBUG 56045 --- [ProductFinder] [http-nio-8080-exec-10] c.a.ProductFinder.security.jwt.JwtUtils  : Generating access token for user: Adewumi
-2025-08-02T00:22:01.348+01:00 DEBUG 56045 --- [ProductFinder] [http-nio-8080-exec-10] c.a.ProductFinder.security.jwt.JwtUtils  : Generating refresh token for user: Adewumi
-2025-08-02T00:22:01.349+01:00  INFO 56045 --- [ProductFinder] [http-nio-8080-exec-10] c.a.P.service.authService.AuthService    : Tokens generated for user ID: 37
-2025-08-02T00:25:15.821+01:00  INFO 57004 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Starting ProductFinderApplication using Java 21.0.7 with PID 57004 (/home/ahmad/JAVA PROJECTS/productFinder/ProductFinder/target/classes started by ahmad in /home/ahmad/JAVA PROJECTS/productFinder/ProductFinder)
-2025-08-02T00:25:15.822+01:00 DEBUG 57004 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Running with Spring Boot v3.4.5, Spring v6.2.6
-2025-08-02T00:25:15.823+01:00  INFO 57004 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : The following 1 profile is active: "dev"
-2025-08-02T00:25:17.958+01:00  WARN 57004 --- [ProductFinder] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2025-08-02T00:25:19.578+01:00 DEBUG 57004 --- [ProductFinder] [restartedMain] c.a.P.security.jwt.JWTAuthTokenFilter    : Filter 'authTokenFilter' configured for use
-2025-08-02T00:25:19.628+01:00  WARN 57004 --- [ProductFinder] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
-2025-08-02T00:25:20.510+01:00  WARN 57004 --- [ProductFinder] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2025-08-02T00:25:21.423+01:00  INFO 57004 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Started ProductFinderApplication in 5.925 seconds (process running for 6.716)
-2025-08-02T00:25:26.621+01:00  INFO 57004 --- [ProductFinder] [http-nio-8080-exec-9] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 384 ms
-2025-08-02T00:25:50.021+01:00  INFO 57004 --- [ProductFinder] [http-nio-8080-exec-10] c.a.P.service.authService.AuthService    : Authentication attempt for username: Adewumi
-2025-08-02T00:25:50.304+01:00  INFO 57004 --- [ProductFinder] [http-nio-8080-exec-10] c.a.P.service.authService.AuthService    : Authentication successful for username: Adewumi
-2025-08-02T00:25:50.305+01:00 DEBUG 57004 --- [ProductFinder] [http-nio-8080-exec-10] c.a.ProductFinder.security.jwt.JwtUtils  : Generating access token for user: Adewumi
-2025-08-02T00:25:50.330+01:00 DEBUG 57004 --- [ProductFinder] [http-nio-8080-exec-10] c.a.ProductFinder.security.jwt.JwtUtils  : Generating refresh token for user: Adewumi
-2025-08-02T00:25:50.331+01:00  INFO 57004 --- [ProductFinder] [http-nio-8080-exec-10] c.a.P.service.authService.AuthService    : Tokens generated for user ID: 37
+2025-08-08T23:37:54.236+01:00  INFO 68476 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Starting ProductFinderApplication using Java 21.0.8 with PID 68476 (/home/ahmad/JAVA PROJECTS/productFinder/ProductFinder/target/classes started by ahmad in /home/ahmad/JAVA PROJECTS/productFinder/ProductFinder)
+2025-08-08T23:37:54.239+01:00 DEBUG 68476 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Running with Spring Boot v3.4.5, Spring v6.2.6
+2025-08-08T23:37:54.239+01:00  INFO 68476 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : The following 1 profile is active: "dev"
+2025-08-08T23:37:56.079+01:00  WARN 68476 --- [ProductFinder] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-08-08T23:37:57.490+01:00 DEBUG 68476 --- [ProductFinder] [restartedMain] c.a.P.security.jwt.JWTAuthTokenFilter    : Filter 'authTokenFilter' configured for use
+2025-08-08T23:37:57.528+01:00  WARN 68476 --- [ProductFinder] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2025-08-08T23:37:58.268+01:00  WARN 68476 --- [ProductFinder] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-08-08T23:37:59.089+01:00  INFO 68476 --- [ProductFinder] [restartedMain] c.a.P.ProductFinderApplication           : Started ProductFinderApplication in 5.158 seconds (process running for 5.726)
+2025-08-08T23:37:59.408+01:00  WARN 68476 --- [ProductFinder] [RMI TCP Connection(2)-127.0.0.1] o.s.b.actuate.mail.MailHealthIndicator   : Mail health check failed
+
+org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: smtp.zoho.com, 587; timeout 5000
+	at org.eclipse.angus.mail.smtp.SMTPTransport.openServer(SMTPTransport.java:2243) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.smtp.SMTPTransport.protocolConnect(SMTPTransport.java:729) ~[jakarta.mail-2.0.3.jar:na]
+	at jakarta.mail.Service.connect(Service.java:345) ~[jakarta.mail-2.0.3.jar:na]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.connectTransport(JavaMailSenderImpl.java:480) ~[spring-context-support-6.2.6.jar:6.2.6]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.testConnection(JavaMailSenderImpl.java:360) ~[spring-context-support-6.2.6.jar:6.2.6]
+	at org.springframework.boot.actuate.mail.MailHealthIndicator.doHealthCheck(MailHealthIndicator.java:52) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.AbstractHealthIndicator.health(AbstractHealthIndicator.java:82) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthIndicator.getHealth(HealthIndicator.java:37) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpoint.getHealth(HealthEndpoint.java:82) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpoint.getHealth(HealthEndpoint.java:41) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpointSupport.getLoggedHealth(HealthEndpointSupport.java:172) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpointSupport.getContribution(HealthEndpointSupport.java:145) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpointSupport.getAggregateContribution(HealthEndpointSupport.java:156) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpointSupport.getContribution(HealthEndpointSupport.java:141) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpointSupport.getHealth(HealthEndpointSupport.java:110) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpointSupport.getHealth(HealthEndpointSupport.java:81) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpoint.health(HealthEndpoint.java:76) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.health.HealthEndpoint.health(HealthEndpoint.java:66) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:281) ~[spring-core-6.2.6.jar:6.2.6]
+	at org.springframework.boot.actuate.endpoint.invoke.reflect.ReflectiveOperationInvoker.invoke(ReflectiveOperationInvoker.java:74) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.endpoint.annotation.AbstractDiscoveredOperation.invoke(AbstractDiscoveredOperation.java:60) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.endpoint.jmx.EndpointMBean.invoke(EndpointMBean.java:124) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at org.springframework.boot.actuate.endpoint.jmx.EndpointMBean.invoke(EndpointMBean.java:97) ~[spring-boot-actuator-3.4.5.jar:3.4.5]
+	at java.management/com.sun.jmx.interceptor.DefaultMBeanServerInterceptor.invoke(DefaultMBeanServerInterceptor.java:803) ~[na:na]
+	at java.management/com.sun.jmx.mbeanserver.JmxMBeanServer.invoke(JmxMBeanServer.java:802) ~[na:na]
+	at java.management.rmi/javax.management.remote.rmi.RMIConnectionImpl.doOperation(RMIConnectionImpl.java:1472) ~[na:na]
+	at java.management.rmi/javax.management.remote.rmi.RMIConnectionImpl$PrivilegedOperation.run(RMIConnectionImpl.java:1310) ~[na:na]
+	at java.management.rmi/javax.management.remote.rmi.RMIConnectionImpl.doPrivilegedOperation(RMIConnectionImpl.java:1405) ~[na:na]
+	at java.management.rmi/javax.management.remote.rmi.RMIConnectionImpl.invoke(RMIConnectionImpl.java:829) ~[na:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360) ~[na:na]
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200) ~[na:na]
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197) ~[na:na]
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714) ~[na:na]
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196) ~[na:na]
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:598) ~[na:na]
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:844) ~[na:na]
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:721) ~[na:na]
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400) ~[na:na]
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:720) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+Caused by: java.net.UnknownHostException: smtp.zoho.com
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:567) ~[na:na]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
+	at org.eclipse.angus.mail.util.WriteTimeoutSocket.connect(WriteTimeoutSocket.java:118) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.util.SocketFetcher.createSocket(SocketFetcher.java:366) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.util.SocketFetcher.getSocket(SocketFetcher.java:243) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.smtp.SMTPTransport.openServer(SMTPTransport.java:2193) ~[jakarta.mail-2.0.3.jar:na]
+	... 45 common frames omitted
+
+2025-08-08T23:38:20.096+01:00  INFO 68476 --- [ProductFinder] [http-nio-8080-exec-9] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 291 ms
+2025-08-08T23:41:26.891+01:00  INFO 68476 --- [ProductFinder] [http-nio-8080-exec-4] c.a.P.service.authService.AuthService    : Authentication attempt for username: Adewumi
+2025-08-08T23:41:27.061+01:00  INFO 68476 --- [ProductFinder] [http-nio-8080-exec-4] c.a.P.service.authService.AuthService    : Authentication successful for username: Adewumi
+2025-08-08T23:41:27.062+01:00 DEBUG 68476 --- [ProductFinder] [http-nio-8080-exec-4] c.a.ProductFinder.security.jwt.JwtUtils  : Generating access token for user: Adewumi
+2025-08-08T23:41:27.074+01:00 DEBUG 68476 --- [ProductFinder] [http-nio-8080-exec-4] c.a.ProductFinder.security.jwt.JwtUtils  : Generating refresh token for user: Adewumi
+2025-08-08T23:41:27.075+01:00  INFO 68476 --- [ProductFinder] [http-nio-8080-exec-4] c.a.P.service.authService.AuthService    : Tokens generated for user ID: 37
