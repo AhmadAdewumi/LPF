@@ -1,53 +1,20 @@
-version: '3.8'
-
-services:
-#  postgres:
-#    image: postgres:latest
-#    container_name: product_finder_db
-#    restart: always
-#    env_file:
-#      - .env
-#    environment:
-#      POSTGRES_USER: ${DB_USERNAME}
-#      POSTGRES_PASSWORD: ${DB_PASSWORD}
-#      POSTGRES_DB: product_finder
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-
-  app:
-    build: .
-    container_name: product_finder_app
-    restart: always
-    env_file:
-      - .env
-    environment:
-      SPRING_DATASOURCE_URL: ${DB_URL}
-    ports:
-      - "${PORT}:${PORT}"
-#    depends_on:
-#      - postgres
-
-volumes:
-  postgres_data:
-
-
 #version: '3.8'
 #
 #services:
-#  postgres:
-#    image: postgres:15
-#    container_name: product_finder_db
-#    restart: always
-#    environment:
-#      POSTGRES_USER: ${DB_USERNAME}
-#      POSTGRES_PASSWORD: ${DB_PASSWORD}
-#      POSTGRES_DB: product_finder
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
+##  postgres:
+##    image: postgres:latest
+##    container_name: product_finder_db
+##    restart: always
+##    env_file:
+##      - .env
+##    environment:
+##      POSTGRES_USER: ${DB_USERNAME}
+##      POSTGRES_PASSWORD: ${DB_PASSWORD}
+##      POSTGRES_DB: product_finder
+##    ports:
+##      - "5432:5432"
+##    volumes:
+##      - postgres_data:/var/lib/postgresql/data
 #
 #  app:
 #    build: .
@@ -57,12 +24,45 @@ volumes:
 #      - .env
 #    environment:
 #      SPRING_DATASOURCE_URL: ${DB_URL}
-#      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-#      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 #    ports:
 #      - "${PORT}:${PORT}"
-#    depends_on:
-#      - postgres
+##    depends_on:
+##      - postgres
 #
 #volumes:
 #  postgres_data:
+#
+#
+##version: '3.8'
+##
+##services:
+##  postgres:
+##    image: postgres:15
+##    container_name: product_finder_db
+##    restart: always
+##    environment:
+##      POSTGRES_USER: ${DB_USERNAME}
+##      POSTGRES_PASSWORD: ${DB_PASSWORD}
+##      POSTGRES_DB: product_finder
+##    ports:
+##      - "5432:5432"
+##    volumes:
+##      - postgres_data:/var/lib/postgresql/data
+##
+##  app:
+##    build: .
+##    container_name: product_finder_app
+##    restart: always
+##    env_file:
+##      - .env
+##    environment:
+##      SPRING_DATASOURCE_URL: ${DB_URL}
+##      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+##      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+##    ports:
+##      - "${PORT}:${PORT}"
+##    depends_on:
+##      - postgres
+##
+##volumes:
+##  postgres_data:
